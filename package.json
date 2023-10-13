@@ -1,26 +1,25 @@
 {
-  "author": {
-    "name": "K.Adam White",
-    "url": "http://www.kadamwhite.com"
-  },
-  "name": "wpapi",
-  "version": "2.0.0-alpha.1",
+  "name": "@cloakwp/wpapi",
+  "version": "2.0.0",
   "description": "An isomorphic JavaScript client for interacting with the WordPress REST API",
   "main": "wpapi.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wp-api/node-wpapi.git"
+    "url": "https://github.com/cloak-labs/node-wpapi.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wp-api/node-wpapi/issues"
+    "url": "https://github.com/cloak-labs/node-wpapi/issues"
   },
-  "homepage": "https://github.com/wp-api/node-wpapi",
+  "homepage": "https://github.com/cloak-labs/node-wpapi",
   "keywords": [
     "api",
+    "rest",
     "client",
     "cms",
-    "wordpress"
+    "wordpress",
+    "cloakwp",
+    "headless"
   ],
   "browserslist": "last 2 versions, ie 11, not dead",
   "jest": {
@@ -46,7 +45,6 @@
     "predocs": "rimraf documentation/api-reference",
     "docs": "grunt docs && jsdoc -c .jsdoc.json --verbose",
     "postdocs": "rimraf documentation/api-readme.md",
-    "jekyll": "node bin/jekyll",
     "release-docs": "node build/scripts/release-docs",
     "release-npm": "npm run build && npm test && npm publish",
     "eslint": "eslint Gruntfile.js wpapi.js bin build lib tests",
@@ -65,8 +63,6 @@
     "qs": "^6.7.0"
   },
   "optionalDependencies": {
-    "form-data": "^2.5.0",
-    "node-fetch": "^2.6.0",
     "superagent": "^4.1.0"
   },
   "devDependencies": {
