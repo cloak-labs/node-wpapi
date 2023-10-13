@@ -1,26 +1,26 @@
-'use strict';
+"use strict";
 
-const { join } = require( 'path' );
+const { join } = require("path");
 
 module.exports = {
 	entry: {
-		wpapi: './fetch',
-		'wpapi-superagent': './superagent',
+		wpapi: "./fetch",
+		"wpapi-superagent": "./superagent",
 	},
 
 	// Use browser builtins instead of Node packages where appropriate.
-	externals: {
-		'node-fetch': 'fetch',
-		'form-data': 'FormData',
-	},
+	// externals: {
+	// 	'node-fetch': 'fetch',
+	// 	'form-data': 'FormData',
+	// },
 
 	node: {
-		fs: 'empty',
+		fs: "empty",
 	},
 
-	mode: 'development',
+	mode: "development",
 
-	devtool: 'cheap-module-source-map',
+	devtool: "cheap-module-source-map",
 
 	stats: {
 		all: false,
@@ -33,10 +33,10 @@ module.exports = {
 	},
 
 	output: {
-		path: join( process.cwd(), 'browser' ),
-		filename: '[name].js',
-		library: 'WPAPI',
-		libraryTarget: 'umd',
+		path: join(process.cwd(), "browser"),
+		filename: "[name].js",
+		library: "WPAPI",
+		libraryTarget: "umd",
 	},
 
 	module: {
@@ -44,15 +44,14 @@ module.exports = {
 			{
 				test: /\.js$/,
 				exclude: /(node_modules)/,
-				loader: require.resolve( 'babel-loader' ),
+				loader: require.resolve("babel-loader"),
 				options: {
-					presets: [ '@babel/preset-env' ],
-					plugins: [ '@babel/plugin-proposal-object-rest-spread' ],
+					presets: ["@babel/preset-env"],
+					plugins: ["@babel/plugin-proposal-object-rest-spread"],
 					// Cache compilation results in ./node_modules/.cache/babel-loader/
 					cacheDirectory: true,
 				},
 			},
 		],
 	},
-
 };

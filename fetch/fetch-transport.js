@@ -1,14 +1,10 @@
 /**
  * @module fetch-transport
  */
-'use strict';
+"use strict";
 
-const fetch = require( 'node-fetch' );
-const FormData = require( 'form-data' );
-const fs = require( 'fs' );
-
-const objectReduce = require( '../lib/util/object-reduce' );
-const { createPaginationObject } = require( '../lib/pagination' );
+const objectReduce = require("../lib/util/object-reduce");
+const { createPaginationObject } = require("../lib/pagination");
 
 /**
  * Utility method to set a header value on a fetch configuration object.
@@ -20,13 +16,13 @@ const { createPaginationObject } = require( '../lib/pagination' );
  * @param {string} value  Value of the header to set
  * @returns {Object} The modified configuration object
  */
-const _setHeader = ( config, header, value ) => ( {
+const _setHeader = (config, header, value) => ({
 	...config,
 	headers: {
-		...( config && config.headers ? config.headers : null ),
-		[ header ]: value,
+		...(config && config.headers ? config.headers : null),
+		[header]: value,
 	},
-} );
+});
 
 /**
  * Set any provided headers on the outgoing request object. Runs after _auth.
@@ -37,16 +33,16 @@ const _setHeader = ( config, header, value ) => ( {
  * @param {Object} options A WPRequest _options object
  * @param {Object} A fetch config object, with any available headers set
  */
-function _setHeaders( config, options ) {
+function _setHeaders(config, options) {
 	// If there's no headers, do nothing
-	if ( ! options.headers ) {
+	if (!options.headers) {
 		return config;
 	}
 
 	return objectReduce(
 		options.headers,
-		( config, value, key ) => _setHeader( config, key, value ),
-		config,
+		(config, value, key) => _setHeader(config, key, value),
+		config
 	);
 }
 
@@ -60,32 +56,32 @@ function _setHeaders( config, options ) {
  * @param {Boolean} forceAuthentication whether to force authentication on the request
  * @param {Object} A fetch request object, conditionally configured to use basic auth
  */
-function _auth( config, options, forceAuthentication ) {
+function _auth(config, options, forceAuthentication) {
 	// If we're not supposed to authenticate, don't even start
-	if ( ! forceAuthentication && ! options.auth && ! options.nonce ) {
+	if (!forceAuthentication && !options.auth && !options.nonce) {
 		return config;
 	}
 
 	// Enable nonce in options for Cookie authentication http://wp-api.org/guides/authentication.html
-	if ( options.nonce ) {
-		config.credentials = 'same-origin';
-		return _setHeader( config, 'X-WP-Nonce', options.nonce );
+	if (options.nonce) {
+		config.credentials = "same-origin";
+		return _setHeader(config, "X-WP-Nonce", options.nonce);
 	}
 
 	// If no username or no password, can't authenticate
-	if ( ! options.username || ! options.password ) {
+	if (!options.username || !options.password) {
 		return config;
 	}
 
 	// Can authenticate: set basic auth parameters on the config
-	let authorization = `${ options.username }:${ options.password }`;
-	if ( global.Buffer ) {
-		authorization = global.Buffer.from( authorization ).toString( 'base64' );
-	} else if ( global.btoa ) {
-		authorization = global.btoa( authorization );
+	let authorization = `${options.username}:${options.password}`;
+	if (global.Buffer) {
+		authorization = global.Buffer.from(authorization).toString("base64");
+	} else if (global.btoa) {
+		authorization = global.btoa(authorization);
 	}
 
-	return _setHeader( config, 'Authorization', `Basic ${ authorization }` );
+	return _setHeader(config, "Authorization", `Basic ${authorization}`);
 }
 
 // HTTP-Related Helpers
@@ -96,11 +92,11 @@ function _auth( config, options, forceAuthentication ) {
  *
  * @param {Object} response Fetch response object.
  */
-function getHeaders( response ) {
+function getHeaders(response) {
 	const headers = {};
-	response.headers.forEach( ( value, key ) => {
-		headers[ key ] = value;
-	} );
+	response.headers.forEach((value, key) => {
+		headers[key] = value;
+	});
 	return headers;
 }
 
@@ -114,45 +110,55 @@ function getHeaders( response ) {
  * @returns {Object} The JSON data of the response, conditionally augmented with
  *                   pagination information if the response is a partial collection.
  */
-const parseFetchResponse = ( response, wpreq ) => {
+const parseFetchResponse = (response, wpreq) => {
 	// Check if an HTTP error occurred.
-	if ( ! response.ok ) {
+	if (!response.ok) {
 		// Extract and return the API-provided error object if the response is
 		// not ok, i.e. if the error was from the API and not internal to fetch.
-		return response.json().then( ( err ) => {
-			// Throw the error object to permit proper error handling.
-			throw err;
-		}, () => {
-			// JSON serialization failed; throw the underlying response.
-			throw response;
-		} );
+		return response.json().then(
+			(err) => {
+				// Throw the error object to permit proper error handling.
+				throw err;
+			},
+			() => {
+				// JSON serialization failed; throw the underlying response.
+				throw response;
+			}
+		);
 	}
 
 	// If the response is OK, process & return the JSON data.
-	return response.json().then( ( body ) => {
+	return response.json().then((body) => {
+		if (wpreq._single) return body[0];
+
 		// Construct a response the pagination helper can understand.
 		const mockResponse = {
-			headers: getHeaders( response ),
+			headers: getHeaders(response),
 		};
 
-		const _paging = createPaginationObject( mockResponse, wpreq._options, wpreq.transport );
-		if ( _paging ) {
+		const _paging = createPaginationObject(
+			mockResponse,
+			wpreq._options,
+			wpreq.transport
+		);
+		if (_paging) {
 			body._paging = _paging;
 		}
 		return body;
-	} );
+	});
 };
 
 // HTTP Methods: Private HTTP-verb versions
 // ========================================
 
-const send = ( wpreq, config ) => fetch(
-	wpreq.toString(),
-	_setHeaders( _auth( config, wpreq._options ), wpreq._options )
-).then( ( response ) => {
-	// return response.headers.get( 'Link' );
-	return parseFetchResponse( response, wpreq );
-} );
+const send = (wpreq, config) =>
+	fetch(
+		wpreq.toString(),
+		_setHeaders(_auth(config, wpreq._options), wpreq._options)
+	).then((response) => {
+		// return response.headers.get( 'Link' );
+		return parseFetchResponse(response, wpreq);
+	});
 
 /**
  * @method get
@@ -160,10 +166,10 @@ const send = ( wpreq, config ) => fetch(
  * @param {WPRequest} wpreq A WPRequest query object
  * @returns {Promise} A promise to the results of the HTTP request
  */
-function _httpGet( wpreq ) {
-	return send( wpreq, {
-		method: 'GET',
-	} );
+function _httpGet(wpreq) {
+	return send(wpreq, {
+		method: "GET",
+	});
 }
 
 /**
@@ -174,35 +180,41 @@ function _httpGet( wpreq ) {
  * @param {Object} data The data for the POST request
  * @returns {Promise} A promise to the results of the HTTP request
  */
-function _httpPost( wpreq, data = {} ) {
+function _httpPost(wpreq, data = {}) {
 	let file = wpreq._attachment;
-	if ( file ) {
+	if (file) {
+		if (!fs) {
+			throw new Error(
+				"Attaching files to a POST request only works when the request is invoked in a server/Node.js environment."
+			);
+		}
+
 		// Handle files provided as a path string
-		if ( typeof file === 'string' ) {
-			file = fs.createReadStream( file );
+		if (typeof file === "string") {
+			file = fs.createReadStream(file);
 		}
 
 		// Build the form data object
 		const form = new FormData();
-		form.append( 'file', file, wpreq._attachmentName );
-		Object.keys( data ).forEach( key => form.append( key, data[ key ] ) );
+		form.append("file", file, wpreq._attachmentName);
+		Object.keys(data).forEach((key) => form.append(key, data[key]));
 
 		// Fire off the media upload request
-		return send( wpreq, {
-			method: 'POST',
-			redirect: 'follow',
+		return send(wpreq, {
+			method: "POST",
+			redirect: "follow",
 			body: form,
-		} );
+		});
 	}
 
-	return send( wpreq, {
-		method: 'POST',
+	return send(wpreq, {
+		method: "POST",
 		headers: {
-			'Content-Type': 'application/json',
+			"Content-Type": "application/json",
 		},
-		redirect: 'follow',
-		body: JSON.stringify( data ),
-	} );
+		redirect: "follow",
+		body: JSON.stringify(data),
+	});
 }
 
 /**
@@ -212,15 +224,15 @@ function _httpPost( wpreq, data = {} ) {
  * @param {Object} data The data for the PUT request
  * @returns {Promise} A promise to the results of the HTTP request
  */
-function _httpPut( wpreq, data = {} ) {
-	return send( wpreq, {
-		method: 'PUT',
+function _httpPut(wpreq, data = {}) {
+	return send(wpreq, {
+		method: "PUT",
 		headers: {
-			'Content-Type': 'application/json',
+			"Content-Type": "application/json",
 		},
-		redirect: 'follow',
-		body: JSON.stringify( data ),
-	} );
+		redirect: "follow",
+		body: JSON.stringify(data),
+	});
 }
 
 /**
@@ -230,20 +242,20 @@ function _httpPut( wpreq, data = {} ) {
  * @param {Object} [data] Data to send along with the DELETE request
  * @returns {Promise} A promise to the results of the HTTP request
  */
-function _httpDelete( wpreq, data ) {
+function _httpDelete(wpreq, data) {
 	const config = {
-		method: 'DELETE',
+		method: "DELETE",
 		headers: {
-			'Content-Type': 'application/json',
+			"Content-Type": "application/json",
 		},
-		redirect: 'follow',
+		redirect: "follow",
 	};
 
-	if ( data ) {
-		config.body = JSON.stringify( data );
+	if (data) {
+		config.body = JSON.stringify(data);
 	}
 
-	return send( wpreq, config );
+	return send(wpreq, config);
 }
 
 /**
@@ -252,14 +264,20 @@ function _httpDelete( wpreq, data ) {
  * @param {WPRequest} wpreq A WPRequest query object
  * @returns {Promise} A promise to the header results of the HTTP request
  */
-function _httpHead( wpreq ) {
+function _httpHead(wpreq) {
 	const url = wpreq.toString();
-	const config = _setHeaders( _auth( {
-		method: 'HEAD',
-	}, wpreq._options, true ), wpreq._options );
+	const config = _setHeaders(
+		_auth(
+			{
+				method: "HEAD",
+			},
+			wpreq._options,
+			true
+		),
+		wpreq._options
+	);
 
-	return fetch( url, config )
-		.then( response => getHeaders( response ) );
+	return fetch(url, config).then((response) => getHeaders(response));
 }
 
 module.exports = {
