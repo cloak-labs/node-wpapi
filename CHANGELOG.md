@@ -1,20 +1,28 @@
 # Changelog
 
+## v.2.0.0
+
+Forked by CloakWP. Updates:
+
+- Removed reliance of `node-fetch` and `form-data` packages as these are now built-in Node APIs (as of Feb. 2022)
+- Removed all code related to documentation site (intention is to simplify the dev environment and reduce future maintenance hell); the original documentation site obviously still exists (out of our control): http://wp-api.org/node-wpapi/api-reference/wpapi/1.1.2/
+- Added `single()` method to `WPRequest`, which will ensure a single object is returned rather than an array -- useful for when you know a single post will be returned and you don't want to manually extract it from the array.
+- Added `fields()` method to `WPRequest` which is a helper for setting the `_fields` filter parameter, enabling you to fetch/return only the fields you specify; learn more here: https://developer.wordpress.org/rest-api/using-the-rest-api/global-parameters/#_fields
+- Added `slug()` method to `WPRequest` which allows you to fetch a specific post by its slug -- it sets the new `single` property under-the-hood for you, returning a single object instead of an array.
+
 ## v2.0.0 [**alpha**] _Second Toughest in the Infants_
+
 - **BREAKING**: "Node-style" error-first callbacks (_e.g._ `.get( ( err, data ) => {} )`) are no longer supported. All transport request methods return Promises.
 - **BREAKING**: The module exported as `wpapi` no longer includes HTTP methods. Install `superagent` as a peer dependency and `require( 'wpapi/superagent' )` in order to make HTTP requests.
 - **BREAKING**: Autodiscovery now either succeeds or fails; a WPAPI instance configured with default routes will no longer be returned.
-
 
 ## v1.2.2 _(future release)_
 
 - Throw an error early when `.file()` is passed a Buffer object without an accompanying name string, props @cungminh2710 & @mvhirsch
 
-
 ## v1.2.1 _Colomb_
 
 - Fix issue where `li` was improperly declared as a dev-only dependency, props @el-lsan & @jerolan.
-
 
 ## v1.2.0 _Space Is Only Noise_
 
@@ -24,17 +32,14 @@
 - The project now uses Jest and ESLint in place of Mocha, Chai, JSCS and JSHint. Thank you for your years of service, ["nyan" reporter](https://mochajs.org/#nyan)!
 - Browser bundle size has been reduced.
 
-
 ## v1.1.2 _If I Survive_
 
 - Resolves an issue where authentication credentials where not maintained properly when iterating through pages of a connection with `._paging.next` or `._paging.prev`, props @motleydev for the reproducible bug report
 - Introduces a `--file` flag for the `update-default-routes-json` command-line script
 
-
 ## v1.1.1 _Music For The Masses_
 
 - Resolves an issue where certain route paths would cause a fatal error in the route tree parser, props @obenland for diagnosing the bug
-
 
 ## v1.1.0 _Where's Your Head At_
 
@@ -42,11 +47,9 @@
 - Clarify CORS requirements in README, props @entr
 - Improve inline documentation & switch from YUIDoc to JSDoc
 
-
 ## v1.0.3 _Couleurs Primaires_
 
 - Properly parse API response text when response is sent back with Content-Type "text/html"
-
 
 ## v1.0.2 _Recto Verso_
 
@@ -55,14 +58,12 @@
 
 Patch release named for Paradis' 2016 LP "Recto Verso".
 
-
 ## v1.0.1 _The Only Constant is Change_
 
 - Support endpoints using "plain permalinks", props @luisherranz
 
 This patch release is named for _The Only Constant is Change_, a track from
 v1.0 namesake album _Emotional Technology_ by BT.
-
 
 ## v1.0.0 _Emotional Technology_
 
@@ -78,13 +79,11 @@ v1.0 namesake album _Emotional Technology_ by BT.
 
 This release is named for BT's 2003 album _Emotional Technology_.
 
-
 ## v0.12.1 _You Only Live Once -Instrumental-_
 
 This patch release fixes an issue where [valid post type identifiers](https://developer.wordpress.org/reference/functions/sanitize_key/) (or [PCRE capture group](http://www.regular-expressions.info/refext.html) names) are not properly intercepted and mapped to camelCase path part setters.
 
 Props @gambry
-
 
 ## v0.12.0 _You Only Live Once_
 
@@ -92,28 +91,27 @@ This release makes breaking changes to how endpoint filtering methods are bound,
 
 New filtering methods:
 
-* `.categories()`
-* `.tags()`
+- `.categories()`
+- `.tags()`
 
 Both of these methods support **querying by ID only**. If a slug is provided it will **not work** in 4.7, due to the removal of `filter`, unless the [rest-filter plugin](http://github.com/wp-api/rest-filter) is installed & active on the remote WordPress site.
 
 **Deprecated** filtering methods:
 
-* `.category()` (for filtering by associated terms; use `.tags()`)
-* `.tag()` (for filtering by associated terms; use `.tags()`)
+- `.category()` (for filtering by associated terms; use `.tags()`)
+- `.tag()` (for filtering by associated terms; use `.tags()`)
 
 _Note:_ these method names may be retained, but the functionality which delegates to `.filter()` to query by term slug will be removed.
 
 **Removed** filtering methods:
 
-* `.name()`: use `.slug()` (deprecated previously)
-* `.filter()`: available as a mixin but no longer enabled by default
-* `.path()` (for Pages)
+- `.name()`: use `.slug()` (deprecated previously)
+- `.filter()`: available as a mixin but no longer enabled by default
+- `.path()` (for Pages)
 
 Props @joaojeronimo, @Ohar, @ryelle
 
 This release is named for w.hatano's latest EP [_You Only Live Once_](https://www.youtube.com/watch?v=V7mnNdkhciQ)
-
 
 ## v0.11.0 _Super_
 
@@ -128,16 +126,16 @@ The theme for v0.11 is better parameter handling. Several parameters are now sup
 The `.param( name, val )` method is always available for custom route handler instances, but the convenience of `.filter` and other overloaded setters was not available to custom routes without some sleuthing through the code for this library (#203). To remedy this situation, a `params` array can now be provided on the `registerRoute` configuration object. If a method is available for a parameter (such as `filter`), it will be used; if no method exists, a setter for that property will be created:
 
 ```js
-site.handler = site.registerRoute( 'myplugin/v1', 'collection/(?P<id>)', {
-    params: [
-      // Listing any of the parameters with built-in handlers will
-      // assign that built-in chaining method to the route handler:
-      'filter',
-      'author',
-      // `.customparam()` will be created as well, as a shortcut
-      // for `.param( 'customparam', val )
-      'customparam'
-    ]
+site.handler = site.registerRoute("myplugin/v1", "collection/(?P<id>)", {
+  params: [
+    // Listing any of the parameters with built-in handlers will
+    // assign that built-in chaining method to the route handler:
+    "filter",
+    "author",
+    // `.customparam()` will be created as well, as a shortcut
+    // for `.param( 'customparam', val )
+    "customparam",
+  ],
 });
 ```
 
@@ -150,7 +148,6 @@ If you are actually running the REST API plugin _in the future_, this library no
 This release is named for the Pet Shop Boys' latest album [_Super_](http://whatissuper.co/)
 
 Props @edygar, @ludoo0d0a, @marcianosr, @sdgluck, and @stephanmax, for issues, PRs, feedback & discussions.
-
 
 ## v0.10.0 _Abaporu_
 
@@ -168,11 +165,9 @@ Custom HTTP transport methods may be provided to inject or short-circuit HTTP be
 
 Props @edygar
 
-
 ## v0.9.3 _Frontier Psychiatrist, 85% Instrumental_
 
 Built bundles in `browser/` did not make it into previous publish!
-
 
 ## v0.9.2 _Frontier Psychiatrist_
 
@@ -192,7 +187,6 @@ Built bundles in `browser/` did not make it into previous publish!
 Issues, Bugs, Documentation Requests & Discussion: @BenHen75, @brianloveswords, @gnarf, @ludoo0d0a, @nodeGarden, @preschian, @sdgluck, @tommedema, @vtripolitakis, @wblaircox, @z-avanes
 
 [I felt strangely hypnotized](https://www.youtube.com/watch?v=eS3AZ12xf6s)
-
 
 ## v0.9.1 _Since I Left You_
 
@@ -219,11 +213,9 @@ For pull requests and patches: @bt, @sdgluck
 
 For opening issues and asking or discussing questions: @elyobo, @joneslloyd, @mrkrumhausen, @satish9323, @smedegaard, @tommedema, @vtripolitakis, @z-avanes
 
-
 ## v0.9.0
 
 (Note: v0.9.0 was beta only)
-
 
 ## v0.8.0 _New Eyes_
 
@@ -238,7 +230,7 @@ Autodiscovery is now supported via the `WP.discover` method (#181)
 If you already have the API response object you want to bootstrap with, the `.routes` property from it can now be passed in when calling `WP.site` or instantiating a `new WP` object (also #181, documented #182):
 
 ```js
-var site = WP.site( 'http://my-endpoint.com/wp-json', endpointJSON.routes );
+var site = WP.site("http://my-endpoint.com/wp-json", endpointJSON.routes);
 ```
 
 A script to ease the process of downloading this JSON object was added in PR #175
@@ -270,7 +262,6 @@ and custom route endpoints: @adamsilverstein, @aedensixty, @andreipot, @artoliuk
 
 For opening issues and asking questions: @aedensixty, @dasheck0, @jsteranko, @nabeards, @satish9323, @stompweb
 
-
 ## v0.7.0
 
 - Fix an improper value check in WP-Request (props @artoliukkonen)
@@ -285,43 +276,35 @@ For opening issues and asking questions: @aedensixty, @dasheck0, @jsteranko, @na
 - Improve structure of the contributors.md file to prioritize testing
 - Add support for /comments collection (props @akira28)
 
-
 ## v0.6.0
 
 (v0.6.0 was lost in the endless sea)
-
 
 ## v0.5.0
 
 This release adds support for nonce-based authentication, useful when making API requests from the client side: props @gerhardsletten
 
-
 ## v0.4.0
 
 adds .posts().meta() method
-
 
 ## v0.3.1
 
 This release resolves an issue with the query string formatting encountered
 when requesting posts of multiple types in the same query
 
-
 ## v0.3.0
 
 The main new feature in 0.3.0 is initial support for collection pagination: Pagination data is exposed in a `_paging` property on response collections, if additional pages of collection objects are available.
-
 
 ## v0.2.3
 
 This release adds basic support for working with paginated responses
 
-
 ## v0.2.2
 
 This release improves the error handling around failed SuperAgent calls.
 Many thanks to @bmac for the bug fix!
-
 
 ## v0.2.1
 
@@ -330,7 +313,6 @@ Added in this release:
 - `wp.taxonomy()` convenience method for retrieving a taxonomy object
 - `wp.categories()` convenience method for retrieving category terms
 - `wp.tags()` convenience method for retrieving post_tag terms
-
 
 ## v0.2.0
 
@@ -352,7 +334,6 @@ Added in this release:
 - Add NPM script aliases for the registered Grunt tasks
 - Standardize constructor naming in README examples
 - Add WP.site static convenience method for creating new sites
-
 
 ## v0.1.1
 

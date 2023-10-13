@@ -1,5 +1,7 @@
-A WordPress REST API client for JavaScript
-==========================================
+> [!NOTE]  
+> This is a forked and updated version of the original [`node-wpapi`](https://github.com/WP-API/node-wpapi) by K. Adam White at Human Made, which was last updated April 7, 2021, and seems to be abandoned (a default installation was broken). Our intention is to continue carrying the torch. All credit goes to its original creators. Check the CHANGELOG.md file starting at `v2.0.0` to see our changes.
+
+# A WordPress REST API client for JavaScript
 
 This library is an isomorphic client for the [WordPress REST API](http://developer.wordpress.org/rest-api), designed to work with WordPress 5.0 or later. If you are using the older [WP REST API plugin](https://github.com/WP-API/WP-API) or WordPress 4.9, some commands will not work.
 
@@ -59,13 +61,13 @@ Then, within your application's script files, `require` the module to gain acces
 To import only the query builder (without the `.get()`, `.create()`, `.delete()`, `.update()` or `.then()` chaining methods):
 
 ```javascript
-var WPAPI = require( 'wpapi' );
+var WPAPI = require("wpapi");
 ```
 
 To import the superagent bundle, which contains the full suite of HTTP interaction methods:
 
 ```js
-var WPAPI = require( 'wpapi/superagent' );
+var WPAPI = require("wpapi/superagent");
 ```
 
 This library is designed to work in the browser as well, via a build system such as Browserify or Webpack; just install the package and `require( 'wpapi' )` (or `'wpapi/superagent'`) from your application code.
@@ -101,10 +103,16 @@ In version 1, you could use "Node-style" error-first callback functions instead 
 
 ```js
 // Version 1
-wp.posts().get( function( error, posts ) { /* ... */ } );
+wp.posts().get(function (error, posts) {
+  /* ... */
+});
 
 // Version 2, Promises syntax
-wp.posts().get().then( posts => { /* ... */ } );
+wp.posts()
+  .get()
+  .then((posts) => {
+    /* ... */
+  });
 
 // Version 2, await syntax
 await wp.posts().get();
@@ -115,26 +123,29 @@ await wp.posts().get();
 The module is a constructor, so you can create an instance of the API client bound to the endpoint for your WordPress install:
 
 ```javascript
-var WPAPI = require( 'wpapi/superagent' );
-var wp = new WPAPI({ endpoint: 'http://src.wordpress-develop.dev/wp-json' });
+var WPAPI = require("wpapi/superagent");
+var wp = new WPAPI({ endpoint: "http://src.wordpress-develop.dev/wp-json" });
 ```
+
 Once an instance is constructed, you can chain off of it to construct a specific request. (Think of it as a query-builder for WordPress!)
 
 **Compatibility Note:** As of Version 2.0, Node-style error-first callbacks are no longer supported by this library. All request methods return Promises.
 
 ```javascript
 // Request methods return Promises.
-wp.posts().get()
-    .then(function( data ) {
-        // do something with the returned posts
-    })
-    .catch(function( err ) {
-        // handle error
-    });
+wp.posts()
+  .get()
+  .then(function (data) {
+    // do something with the returned posts
+  })
+  .catch(function (err) {
+    // handle error
+  });
 ```
+
 The `wp` object has endpoint handler methods for every endpoint that ships with the default WordPress REST API plugin.
 
-Once you have used the chaining methods to describe a resource, you may call `.create()`, `.get()`, `.update()` or `.delete()`  to send the API request to create, read, update or delete content within WordPress. These methods are documented in further detail below.
+Once you have used the chaining methods to describe a resource, you may call `.create()`, `.get()`, `.update()` or `.delete()` to send the API request to create, read, update or delete content within WordPress. These methods are documented in further detail below.
 
 ### Self-signed (Insecure) HTTPS Certificates
 
@@ -151,28 +162,36 @@ It is also possible to leverage the [capability discovery](https://developer.wor
 To utilize the auto-discovery functionality, call `WPAPI.discover()` with a URL within a WordPress REST API-enabled site:
 
 ```js
-var apiPromise = WPAPI.discover( 'http://my-site.com' );
+var apiPromise = WPAPI.discover("http://my-site.com");
 ```
+
 If auto-discovery succeeds this method returns a promise that will be resolved with a WPAPI client instance object configured specifically for your site. You can use that promise as the queue that your client instance is ready, then use the client normally within the `.then` callback.
 
 **Custom Routes** will be detected by this process, and registered on the client. To prevent name conflicts, only routes in the `wp/v2` namespace will be bound to your instance object itself. The rest can be accessed through the `.namespace` method on the WPAPI instance, as demonstrated below.
 
 ```js
-apiPromise.then(function( site ) {
-    // If default routes were detected, they are now available
-    site.posts().then(function( posts ) {
-        console.log( posts );
-    }); // etc
+apiPromise.then(function (site) {
+  // If default routes were detected, they are now available
+  site.posts().then(function (posts) {
+    console.log(posts);
+  }); // etc
 
-    // If custom routes were detected, they can be accessed via .namespace()
-    site.namespace( 'myplugin/v1' ).authors()
-        .then(function( authors ) { /* ... */ });
+  // If custom routes were detected, they can be accessed via .namespace()
+  site
+    .namespace("myplugin/v1")
+    .authors()
+    .then(function (authors) {
+      /* ... */
+    });
 
-    // Namespaces can be saved out to variables:
-    var myplugin = site.namespace( 'myplugin/v1' );
-    myplugin.authors()
-        .id( 7 )
-        .then(function( author ) { /* ... */ });
+  // Namespaces can be saved out to variables:
+  var myplugin = site.namespace("myplugin/v1");
+  myplugin
+    .authors()
+    .id(7)
+    .then(function (author) {
+      /* ... */
+    });
 });
 ```
 
@@ -181,15 +200,15 @@ apiPromise.then(function( site ) {
 While using `WPAPI.discover( url )` to generate the handler for your site gets you up and running quickly, it does not provide the same level of customization as instantiating your own `new WPAPI` object. In order to specify authentication configuration when using autodiscovery, chain a `.then` onto the initial discovery query to call the `.auth` method on the returned site object with the relevant credentials (username & password, nonce, etc):
 
 ```js
-var apiPromise = WPAPI.discover( 'http://my-site.com' ).then(function( site ) {
-    return site.auth({
-        username: 'admin',
-        password: 'always use secure passwords'
-    });
+var apiPromise = WPAPI.discover("http://my-site.com").then(function (site) {
+  return site.auth({
+    username: "admin",
+    password: "always use secure passwords",
+  });
 });
-apiPromise.then(function( site ) {
-    // site is now configured to use authentication
-})
+apiPromise.then(function (site) {
+  // site is now configured to use authentication
+});
 ```
 
 #### Cross-Origin Auto-Discovery
@@ -214,7 +233,7 @@ Enable CORS at your own discretion. Restricting `Access-Control-Allow-Origin` to
 
 ### Bootstrapping
 
-If you are building an application designed to interface with a specific site, it is possible to sidestep the additional asynchronous HTTP calls that are needed to bootstrap the client through auto-discovery. You can download the root API response, *i.e.* the JSON response when you hit the root endpoint such as `your-site.com/wp-json`, and save that JSON file locally; then, in
+If you are building an application designed to interface with a specific site, it is possible to sidestep the additional asynchronous HTTP calls that are needed to bootstrap the client through auto-discovery. You can download the root API response, _i.e._ the JSON response when you hit the root endpoint such as `your-site.com/wp-json`, and save that JSON file locally; then, in
 your application code, just require in that JSON file and pass the routes property into the `WPAPI` constructor or the `WPAPI.site` method.
 
 Note that you must specify the endpoint URL as normal when using this approach.
@@ -243,23 +262,25 @@ To create posts, use the `.create()` method on a query to POST (the HTTP verb fo
 ```js
 // You must authenticate to be able to POST (create) a post
 var wp = new WPAPI({
-    endpoint: 'http://your-site.com/wp-json',
-    // This assumes you are using basic auth, as described further below
-    username: 'someusername',
-    password: 'password'
+  endpoint: "http://your-site.com/wp-json",
+  // This assumes you are using basic auth, as described further below
+  username: "someusername",
+  password: "password",
 });
-wp.posts().create({
+wp.posts()
+  .create({
     // "title" and "content" are the only required properties
-    title: 'Your Post Title',
-    content: 'Your post content',
+    title: "Your Post Title",
+    content: "Your post content",
     // Post will be created as a draft by default if a specific "status"
     // is not specified
-    status: 'publish'
-}).then(function( response ) {
+    status: "publish",
+  })
+  .then(function (response) {
     // "response" will hold all properties of your newly-created post,
     // including the unique `id` the post was assigned on creation
-    console.log( response.id );
-})
+    console.log(response.id);
+  });
 ```
 
 This will work in the same manner for resources other than `post`: you can see the list of required data parameters for each resource on the [REST API Developer Handbook](https://developer.wordpress.org/rest-api/reference/).
@@ -271,20 +292,23 @@ To create posts, use the `.update()` method on a single-item query to PUT (the H
 ```js
 // You must authenticate to be able to PUT (update) a post
 var wp = new WPAPI({
-    endpoint: 'http://your-site.com/wp-json',
-    // This assumes you are using basic auth, as described further below
-    username: 'someusername',
-    password: 'password'
+  endpoint: "http://your-site.com/wp-json",
+  // This assumes you are using basic auth, as described further below
+  username: "someusername",
+  password: "password",
 });
 // .id() must be used to specify the post we are updating
-wp.posts().id( 2501 ).update({
+wp.posts()
+  .id(2501)
+  .update({
     // Update the title
-    title: 'A Better Title',
+    title: "A Better Title",
     // Set the post live (assuming it was "draft" before)
-    status: 'publish'
-}).then(function( response ) {
-    console.log( response );
-})
+    status: "publish",
+  })
+  .then(function (response) {
+    console.log(response);
+  });
 ```
 
 This will work in the same manner for resources other than `post`: you can see the list of required data parameters for each resource in the [REST API Developer Handbook](https://developer.wordpress.org/rest-api/reference/).
@@ -293,65 +317,65 @@ This will work in the same manner for resources other than `post`: you can see t
 
 A WPAPI instance object provides the following basic request methods:
 
-* `wp.posts()...`: Request items from the `/posts` endpoints
-* `wp.pages()...`: Start a request for the `/pages` endpoints
-* `wp.types()...`: Get Post Type collections and objects from the `/types` endpoints
-* `wp.comments()...`: Start a request for the `/comments` endpoints
-* `wp.taxonomies()...`: Generate a request against the `/taxonomies` endpoints
-* `wp.tags()...`: Get or create tags with the `/tags` endpoint
-* `wp.categories()...`: Get or create categories with the `/categories` endpoint
-* `wp.statuses()...`: Get resources within the `/statuses` endpoints
-* `wp.users()...`: Get resources within the `/users` endpoints
-* `wp.search()...`: Find resources of any [REST-enabled] post type matching a `?search=` string
-* `wp.media()...`: Get Media collections and objects from the `/media` endpoints
-* `wp.themes()...`: Read information about the active theme from the `/themes` endpoint (always requires authentication)
-* `wp.settings()...`: Read or update site settings from the `/settings` endpoint (always requires authentication)
-* `wp.blocks()...`: Create queries against the `blocks` endpoint
+- `wp.posts()...`: Request items from the `/posts` endpoints
+- `wp.pages()...`: Start a request for the `/pages` endpoints
+- `wp.types()...`: Get Post Type collections and objects from the `/types` endpoints
+- `wp.comments()...`: Start a request for the `/comments` endpoints
+- `wp.taxonomies()...`: Generate a request against the `/taxonomies` endpoints
+- `wp.tags()...`: Get or create tags with the `/tags` endpoint
+- `wp.categories()...`: Get or create categories with the `/categories` endpoint
+- `wp.statuses()...`: Get resources within the `/statuses` endpoints
+- `wp.users()...`: Get resources within the `/users` endpoints
+- `wp.search()...`: Find resources of any [REST-enabled] post type matching a `?search=` string
+- `wp.media()...`: Get Media collections and objects from the `/media` endpoints
+- `wp.themes()...`: Read information about the active theme from the `/themes` endpoint (always requires authentication)
+- `wp.settings()...`: Read or update site settings from the `/settings` endpoint (always requires authentication)
+- `wp.blocks()...`: Create queries against the `blocks` endpoint
 
 All of these methods return a customizable request object. The request object can be further refined with chaining methods, and/or sent to the server via `.get()`, `.create()`, `.update()`, `.delete()`, `.headers()`, or `.then()`. (Not all endpoints support all methods; for example, you cannot POST or PUT records on `/types`, as these are defined in WordPress plugin or theme code.)
 
 Additional querying methods provided, by endpoint:
 
-* **posts**
-    - `wp.posts()`: get a collection of posts (default query)
-    - `wp.posts().id( n )`: get the post with ID *n*
-    - `wp.posts().id( n ).revisions()`: get a collection of revisions for the post with ID *n*
-    - `wp.posts().id( n ).revisions( rn )`: get revision *rn* for the post with ID *n*
-* **pages**
-    - `wp.pages()`: get a collection of page items
-    - `wp.pages().id( n )`: get the page with numeric ID *n*
-    - `wp.pages().path( 'path/str' )`: get the page with the root-relative URL path `path/str`
-    - `wp.pages().id( n ).revisions()`: get a collection of revisions for the page with ID *n*
-    - `wp.pages().id( n ).revisions( rn )`: get revision *rn* for the page with ID *n*
-* **comments**
-    - `wp.comments()`: get a collection of all public comments
-    - `wp.comments().id( n )`: get the comment with ID *n*
-* **taxonomies**
-    - `wp.taxonomies()`: retrieve all registered taxonomies
-    - `wp.taxonomies().taxonomy( 'taxonomy_name' )`: get a specific taxonomy object with name *taxonomy_name*
-* **categories**
-    - `wp.categories()`: retrieve all registered categories
-    - `wp.categories().id( n )`: get a specific category object with id *n*
-* **tags**
-    - `wp.tags()`: retrieve all registered tags
-    - `wp.tags().id( n )`: get a specific tag object with id *n*
-* **custom taxonomy terms**
-    - [Use `registerRoute()`](http://wp-api.org/node-wpapi/custom-routes/) or [route auto-discovery](http://wp-api.org/node-wpapi/using-the-client/#auto-discovery) to query for custom taxonomy terms
-* **types**
-    - `wp.types()`: get a collection of all registered public post types
-    - `wp.types().type( 'cpt_name' )`: get the object for the custom post type with the name *cpt_name*
-* **statuses**
-    - `wp.statuses()`: get a collection of all registered public post statuses (if the query is authenticated&mdash;will just display "published" if unauthenticated)
-    - `wp.statuses().status( 'slug' )`: get the object for the status with the slug *slug*
-* **users**
-    - `wp.users()`: get a collection of users (will show only users with published content if request is not authenticated)
-    - `wp.users().id( n )`: get the user with ID *n* (does not require authentication if that user is a published author within the blog)
-    - `wp.users().me()`: get the authenticated user's record
-* **media**
-    - `wp.media()`: get a collection of media objects (attachments)
-    - `wp.media().id( n )`: get media object with ID *n*
-* **settings**
-    - `wp.settings()`: get or update one or many site settings
+- **posts**
+  - `wp.posts()`: get a collection of posts (default query)
+  - `wp.posts().id( n )`: get the post with ID _n_
+  - `wp.posts().id( n ).revisions()`: get a collection of revisions for the post with ID _n_
+  - `wp.posts().id( n ).revisions( rn )`: get revision _rn_ for the post with ID _n_
+- **pages**
+  - `wp.pages()`: get a collection of page items
+  - `wp.pages().id( n )`: get the page with numeric ID _n_
+  - `wp.pages().path( 'path/str' )`: get the page with the root-relative URL path `path/str`
+  - `wp.pages().id( n ).revisions()`: get a collection of revisions for the page with ID _n_
+  - `wp.pages().id( n ).revisions( rn )`: get revision _rn_ for the page with ID _n_
+- **comments**
+  - `wp.comments()`: get a collection of all public comments
+  - `wp.comments().id( n )`: get the comment with ID _n_
+- **taxonomies**
+  - `wp.taxonomies()`: retrieve all registered taxonomies
+  - `wp.taxonomies().taxonomy( 'taxonomy_name' )`: get a specific taxonomy object with name _taxonomy_name_
+- **categories**
+  - `wp.categories()`: retrieve all registered categories
+  - `wp.categories().id( n )`: get a specific category object with id _n_
+- **tags**
+  - `wp.tags()`: retrieve all registered tags
+  - `wp.tags().id( n )`: get a specific tag object with id _n_
+- **custom taxonomy terms**
+  - [Use `registerRoute()`](http://wp-api.org/node-wpapi/custom-routes/) or [route auto-discovery](http://wp-api.org/node-wpapi/using-the-client/#auto-discovery) to query for custom taxonomy terms
+- **types**
+  - `wp.types()`: get a collection of all registered public post types
+  - `wp.types().type( 'cpt_name' )`: get the object for the custom post type with the name _cpt_name_
+- **statuses**
+  - `wp.statuses()`: get a collection of all registered public post statuses (if the query is authenticated&mdash;will just display "published" if unauthenticated)
+  - `wp.statuses().status( 'slug' )`: get the object for the status with the slug _slug_
+- **users**
+  - `wp.users()`: get a collection of users (will show only users with published content if request is not authenticated)
+  - `wp.users().id( n )`: get the user with ID _n_ (does not require authentication if that user is a published author within the blog)
+  - `wp.users().me()`: get the authenticated user's record
+- **media**
+  - `wp.media()`: get a collection of media objects (attachments)
+  - `wp.media().id( n )`: get media object with ID _n_
+- **settings**
+  - `wp.settings()`: get or update one or many site settings
 
 For security reasons, methods like `.revisions()` and `.settings()` require the request to be authenticated, and others such as `.users()` and `.posts()` will return only a subset of their information without authentication.
 
@@ -360,7 +384,7 @@ For security reasons, methods like `.revisions()` and `.settings()` require the 
 To get the URI of the resource _without_ making a request, call `.toString()` at the end of a query chain:
 
 ```js
-var uriString = wp.posts().id( 7 ).embed().toString();
+var uriString = wp.posts().id(7).embed().toString();
 ```
 
 As the name implies `.toString()` is not a chaining method, and will return a string containing the full URI; this can then be used with alternative HTTP transports like `request`, Node's native `http`, `fetch`, or jQuery.
@@ -439,38 +463,41 @@ wp.posts().categories( 7 )...
 To find the ID of a tag or category for which the slug is known, you can query the associated collection with `.slug()` and use the ID of the returned object in a two-step process:
 
 ```js
-wp.categories().slug( 'fiction' )
-    .then(function( cats ) {
-        // .slug() queries will always return as an array
-        var fictionCat = cats[0];
-        return wp.posts().categories( fictionCat.id );
-    })
-    .then(function( postsInFiction ) {
-        // These posts are all categorized "fiction":
-        console.log( postsInFiction );
-    });
+wp.categories()
+  .slug("fiction")
+  .then(function (cats) {
+    // .slug() queries will always return as an array
+    var fictionCat = cats[0];
+    return wp.posts().categories(fictionCat.id);
+  })
+  .then(function (postsInFiction) {
+    // These posts are all categorized "fiction":
+    console.log(postsInFiction);
+  });
 ```
 
 To find posts in category 'fiction' and tagged either 'magical-realism' or 'historical', this process can be extended: note that this example uses the [`RSVP.hash` utility](https://github.com/tildeio/rsvp.js/#hash-of-promises) for convenience and parallelism, but the same result could easily be accomplished with `Promise.all` or by chaining each request.
 
 ```js
 RSVP.hash({
-  categories: wp.categories().slug( 'fiction' ),
-  tags1: wp.tags().slug('magical-realism'),
-  tags2: wp.tags().slug('historical')
-}).then(function( results ) {
+  categories: wp.categories().slug("fiction"),
+  tags1: wp.tags().slug("magical-realism"),
+  tags2: wp.tags().slug("historical"),
+})
+  .then(function (results) {
     // Combine & map .slug() results into arrays of IDs by taxonomy
-    var tagIDs = results.tags1.concat( results.tags2 )
-        .map(function( tag ) { return tag.id; });
-    var categoryIDs = results.categories
-        .map(function( cat ) { return cat.id; });
-    return wp.posts()
-        .tags( tags )
-        .categories( categories );
-}).then(function( posts ) {
+    var tagIDs = results.tags1.concat(results.tags2).map(function (tag) {
+      return tag.id;
+    });
+    var categoryIDs = results.categories.map(function (cat) {
+      return cat.id;
+    });
+    return wp.posts().tags(tags).categories(categories);
+  })
+  .then(function (posts) {
     // These posts are all fiction, either magical realism or historical:
-    console.log( posts );
-});
+    console.log(posts);
+  });
 ```
 
 This process may seem cumbersome, but it provides a more broadly reliable method of querying than querying by mutable slugs. The first requests may also be avoided entirely by pre-creating and storing a dictionary of term slugs and their associated IDs in your application; however, be aware that this dictionary must be updated whenever slugs change.
@@ -497,10 +524,10 @@ The `.author()` method also exists to query for posts authored by a specific use
 
 ```js
 // equivalent to .param( 'author', 42 ):
-wp.posts().author( 42 ).get();
+wp.posts().author(42).get();
 
 // last value wins: this queries for author == 71
-wp.posts().author( 42 ).author( 71 ).get();
+wp.posts().author(42).author(71).get();
 ```
 
 As with categories and tags, the `/users` endpoint may be queried by slug to retrieve the ID to use in this query, if needed.
@@ -510,18 +537,20 @@ As with categories and tags, the `/users` endpoint may be queried by slug to ret
 The `.password()` method (not to be confused with the password property of `.auth()`!) sets the password to use to view a password-protected post. Any post for which the content is protected will have `protected: true` set on its `content` and `excerpt` properties; `content.rendered` and `excerpt.rendered` will both be `''` until the password is provided by query string.
 
 ```js
-wp.posts().id( idOfProtectedPost )
-    .then(function( result ) {
-        console.log( result.content.protected ); // true
-        console.log( result.content.rendered ); // ""
-    });
+wp.posts()
+  .id(idOfProtectedPost)
+  .then(function (result) {
+    console.log(result.content.protected); // true
+    console.log(result.content.rendered); // ""
+  });
 
-wp.posts.id( idOfProtectedPost )
-    // Provide the password string with the request
-    .password( 'thepasswordstring' )
-    .then(function( result ) {
-        console.log( result.content.rendered ); // "The post content"
-    });
+wp.posts
+  .id(idOfProtectedPost)
+  // Provide the password string with the request
+  .password("thepasswordstring")
+  .then(function (result) {
+    console.log(result.content.rendered); // "The post content"
+  });
 ```
 
 #### Other Filters
@@ -555,9 +584,9 @@ WPAPI.discover( 'http://mysite.com' )
 
 `?before` and `?after` provide first-party support for querying by date, but should you have access to `filter` then three additional date query methods are available to return posts from a specific month, day or year:
 
-* `.year( year )`: find items published in the specified year
-* `.month( month )`: find items published in the specified month, designated by the month index (1&ndash;12) or name (*e.g.* "February")
-* `.day( day )`: find items published on the specified day
+- `.year( year )`: find items published in the specified year
+- `.month( month )`: find items published in the specified month, designated by the month index (1&ndash;12) or name (_e.g._ "February")
+- `.day( day )`: find items published on the specified day
 
 ### Uploading Media
 
@@ -583,25 +612,25 @@ If you wish to associate a newly-uploaded media record to a specific post, you m
 
 ```js
 wp.media()
-    // Specify a path to the file you want to upload, or a Buffer
-    .file( '/path/to/the/image.jpg' )
-    .create({
-        title: 'My awesome image',
-        alt_text: 'an image of something awesome',
-        caption: 'This is the caption text',
-        description: 'More explanatory information'
-    })
-    .then(function( response ) {
-        // Your media is now uploaded: let's associate it with a post
-        var newImageId = response.id;
-        return wp.media().id( newImageId ).update({
-            post: associatedPostId
-        });
-    })
-    .then(function( response ) {
-        console.log( 'Media ID #' + response.id );
-        console.log( 'is now associated with Post ID #' + response.post );
+  // Specify a path to the file you want to upload, or a Buffer
+  .file("/path/to/the/image.jpg")
+  .create({
+    title: "My awesome image",
+    alt_text: "an image of something awesome",
+    caption: "This is the caption text",
+    description: "More explanatory information",
+  })
+  .then(function (response) {
+    // Your media is now uploaded: let's associate it with a post
+    var newImageId = response.id;
+    return wp.media().id(newImageId).update({
+      post: associatedPostId,
     });
+  })
+  .then(function (response) {
+    console.log("Media ID #" + response.id);
+    console.log("is now associated with Post ID #" + response.post);
+  });
 ```
 
 If you are uploading media from the client side, you can pass a reference to a file input's file list entry in place of the file path:
@@ -617,9 +646,9 @@ wp.media()
 Support for Custom Post Types is provided via the `.registerRoute` method. This method returns a handler function which can be assigned to your site instance as a method, and takes the [same namespace and route string arguments as `rest_register_route`](https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/):
 
 ```js
-var site = new WPAPI({ endpoint: 'http://www.yoursite.com/wp-json' });
-site.myCustomResource = site.registerRoute( 'myplugin/v1', '/author/(?P<id>)' );
-site.myCustomResource().id( 17 ); // => myplugin/v1/author/17
+var site = new WPAPI({ endpoint: "http://www.yoursite.com/wp-json" });
+site.myCustomResource = site.registerRoute("myplugin/v1", "/author/(?P<id>)");
+site.myCustomResource().id(17); // => myplugin/v1/author/17
 ```
 
 The string `(?P<id>)` indicates that a level of the route for this resource is a dynamic property named ID. By default, properties identified in this fashion will not have any inherent validation. This is designed to give developers the flexibility to pass in anything, with the caveat that only valid IDs will be accepted on the WordPress end.
@@ -627,11 +656,15 @@ The string `(?P<id>)` indicates that a level of the route for this resource is a
 You might notice that in the example from the official WP-API documentation, a pattern is specified with a different format: this is a [regular expression](http://www.regular-expressions.info/tutorial.html) designed to validate the values that may be used for this capture group.
 
 ```js
-var site = new WPAPI({ endpoint: 'http://www.yoursite.com/wp-json' });
-site.myCustomResource = site.registerRoute( 'myplugin/v1', '/author/(?P<id>\\d+)' );
-site.myCustomResource().id( 7 ); // => myplugin/v1/author/7
-site.myCustomResource().id( 'foo' ); // => Error: Invalid path component: foo does not match (?P<a>\d+)
+var site = new WPAPI({ endpoint: "http://www.yoursite.com/wp-json" });
+site.myCustomResource = site.registerRoute(
+  "myplugin/v1",
+  "/author/(?P<id>\\d+)"
+);
+site.myCustomResource().id(7); // => myplugin/v1/author/7
+site.myCustomResource().id("foo"); // => Error: Invalid path component: foo does not match (?P<a>\d+)
 ```
+
 Adding the regular expression pattern (as a string) enabled validation for this component. In this case, the `\\d+` will cause only _numeric_ values to be accepted.
 
 **NOTE THE DOUBLE-SLASHES** in the route definition here, however:
@@ -651,14 +684,17 @@ The route string `'pages/(?P<parentPage>[\\d]+)/revisions/(?P<id>[\\d]+)'` would
 In the example above, registering the route string `'/author/(?P<id>\\d+)'` results in the creation of an `.id()` method on the resulting resource handler:
 
 ```js
-site.myCustomResource().id( 7 ); // => myplugin/v1/author/7
+site.myCustomResource().id(7); // => myplugin/v1/author/7
 ```
 
 If a named route component (_e.g._ the "id" part in `(?P<id>\\d+)`, above) is in `snake_case`, then that setter will be converted to camelCase instead, as with `some_part` below:
 
 ```js
-site.myCustomResource = site.registerRoute( 'myplugin/v1', '/resource/(?P<some_part>\\d+)' );
-site.myCustomResource().somePart( 7 ); // => myplugin/v1/resource/7
+site.myCustomResource = site.registerRoute(
+  "myplugin/v1",
+  "/resource/(?P<some_part>\\d+)"
+);
+site.myCustomResource().somePart(7); // => myplugin/v1/resource/7
 ```
 
 Non-snake_cased route parameter names will be unaffected.
@@ -682,7 +718,7 @@ site.handler().post( 8 ).author( 92 ).before( dateObj )...
 If you wish to set custom parameters, for example to query by the custom taxonomy `genre`, you can use the `.param()` method as usual:
 
 ```js
-site.handler().param( 'genre', genreTermId );
+site.handler().param("genre", genreTermId);
 ```
 
 but you can also specify additional query parameter names and a `.param()` wrapper function will be added automatically. _e.g._ here `.genre( x )` will be created as a shortcut for `.param( 'genre', x )`:
@@ -700,23 +736,24 @@ site.books().genre([ genreId1, genreId2 ])...
 To assign completely arbitrary custom methods for use with your custom endpoints, a configuration object may be passed to the `registerRoute` method with a `mixins` property defining any functions to add:
 
 ```js
-site.handler = site.registerRoute( 'myplugin/v1', 'collection/(?P<id>)', {
-    mixins: {
-        myParam: function( val ) {
-            return this.param( 'my_param', val );
-        }
-    }
+site.handler = site.registerRoute("myplugin/v1", "collection/(?P<id>)", {
+  mixins: {
+    myParam: function (val) {
+      return this.param("my_param", val);
+    },
+  },
 });
 ```
+
 This permits a developer to extend an endpoint with arbitrary parameters in the same manner as is done for the automatically-generated built-in route handlers.
 
 Note that mixins should always return `this` to support method chaining.
 
 ## Embedding Data
 
-Data types in WordPress are interrelated: A post has an author, some number of tags, some number of categories, *etc*. By default, the API responses will provide pointers to these related objects, but will not embed the full resources: so, for example, the `"author"` property would come back as just the author's ID, *e.g.* `"author": 4`.
+Data types in WordPress are interrelated: A post has an author, some number of tags, some number of categories, _etc_. By default, the API responses will provide pointers to these related objects, but will not embed the full resources: so, for example, the `"author"` property would come back as just the author's ID, _e.g._ `"author": 4`.
 
-This functionality provides API consumers the flexibility to determine when and how they retrieve the related data. However, there are also times where an API consumer will want to get the most data in the fewest number of responses. Certain resources (author, comments, tags, and categories, to name a few) support *embedding*, meaning that they can be included in the response if the `_embed` query parameter is set.
+This functionality provides API consumers the flexibility to determine when and how they retrieve the related data. However, there are also times where an API consumer will want to get the most data in the fewest number of responses. Certain resources (author, comments, tags, and categories, to name a few) support _embedding_, meaning that they can be included in the response if the `_embed` query parameter is set.
 
 To request that the API respond with embedded data, simply call `.embed()` as part of the request chain:
 
@@ -744,7 +781,7 @@ For more on working with embedded data, [check out the WP-API documentation](htt
 
 ## Collection Pagination
 
-WordPress sites can have a lot of content&mdash;far more than you'd want to pull down in a single request. The API endpoints default to providing a limited number of items per request, the same way that a WordPress site will default to 10 posts per page in archive views. The number of objects you can get back can be adjusted by calling the `perPage` method, but `perPage` is capped at 100 items per request for performance reasons. To work around these restrictions, the API provides headers so the API will frequently have to return your posts  be unable to fit all of your posts in a single query.
+WordPress sites can have a lot of content&mdash;far more than you'd want to pull down in a single request. The API endpoints default to providing a limited number of items per request, the same way that a WordPress site will default to 10 posts per page in archive views. The number of objects you can get back can be adjusted by calling the `perPage` method, but `perPage` is capped at 100 items per request for performance reasons. To work around these restrictions, the API provides headers so the API will frequently have to return your posts be unable to fit all of your posts in a single query.
 
 ### Using Pagination Headers
 
@@ -761,23 +798,24 @@ The existence of the `_paging.links.prev` and `_paging.links.next` properties ca
 You can use the `next` and `prev` properties to traverse an entire collection, should you so choose. For example, this snippet will recursively request the next page of posts and concatenate it with existing results, in order to build up an array of every post on your site:
 
 ```javascript
-var _ = require( 'lodash' );
-function getAll( request ) {
-  return request.then(function( response ) {
-    if ( ! response._paging || ! response._paging.next ) {
+var _ = require("lodash");
+function getAll(request) {
+  return request.then(function (response) {
+    if (!response._paging || !response._paging.next) {
       return response;
     }
     // Request the next page and return both responses as one collection
-    return Promise.all([
-      response,
-      getAll( response._paging.next )
-    ]).then(function( responses ) {
-      return _.flatten( responses );
-    });
+    return Promise.all([response, getAll(response._paging.next)]).then(
+      function (responses) {
+        return _.flatten(responses);
+      }
+    );
   });
 }
 // Kick off the request
-getAll( wp.posts() ).then(function( allPosts ) { /* ... */ });
+getAll(wp.posts()).then(function (allPosts) {
+  /* ... */
+});
 ```
 
 Be aware that this sort of unbounded recursion can take a **very long time**: if you use this technique in your application, we strongly recommend caching the response objects in a local database rather than re-requesting from the WP remote every time you need them.
@@ -789,7 +827,7 @@ Depending on the amount of content in your site loading all posts into memory ma
 You can also use a `.page(pagenumber)` method on calls that support pagination to directly get that page. For example, to set the API to return 5 posts on every page of results, and to get the third page of results (posts 11 through 15), you would write
 
 ```js
-wp.posts().perPage( 5 ).page( 3 ).then(/* ... */);
+wp.posts().perPage(5).page(3).then(/* ... */);
 ```
 
 ### Using `offset`
@@ -819,25 +857,25 @@ The default HTTP transport methods are available as `WPAPI.transport` (a propert
 
 ```js
 var site = new WPAPI({
-  endpoint: 'http://my-site.com/wp-json',
+  endpoint: "http://my-site.com/wp-json",
   transport: {
     // Only override the transport for the GET method, in this example
     // Transport methods should take a wpreq object:
-    get: function( wpreq ) {
-      var result = cache[ wpreq ];
+    get: function (wpreq) {
+      var result = cache[wpreq];
       // If a cache hit is found, return it wrapped in a Promise:
-      if ( result ) {
+      if (result) {
         // Return the data as a promise
-        return Promise.resolve( result );
+        return Promise.resolve(result);
       }
 
       // Delegate to default transport if no cached data was found
-      return WPAPI.transport.get( wpreq, cb ).then(function( result ) {
-        cache[ wpreq ] = result;
+      return WPAPI.transport.get(wpreq, cb).then(function (result) {
+        cache[wpreq] = result;
         return result;
       });
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -845,12 +883,17 @@ You may set one or many custom HTTP transport methods on an existing WP site cli
 
 ```js
 site.transport({
-    get: function( wpreq ) { /* ... */},
-    put: function( wpreq, data ) { /* ... */}
+  get: function (wpreq) {
+    /* ... */
+  },
+  put: function (wpreq, data) {
+    /* ... */
+  },
 });
 ```
 
 Note that these transport methods are the internal methods used by `create` and `.update`, so the names of these methods therefore map to the HTTP verbs "get", "post", "put", "head" and "delete"; name your transport methods accordingly or they will not be used.
+
 ### Specifying HTTP Headers
 
 If you need to send additional HTTP headers along with your request (for example to provide a specific `Authorization` header for use with alternative authentication schemes), you can use the `.setHeaders()` method to specify one or more headers to send with the dispatched request:
@@ -889,15 +932,15 @@ You must be authenticated with WordPress to create, edit or delete resources via
 
 This library currently supports [basic HTTP authentication](http://en.wikipedia.org/wiki/Basic_access_authentication). To authenticate with your WordPress install,
 
-1. Download and install the [Basic Authentication handler plugin](https://github.com/WP-API/Basic-Auth) on your target WordPress site. *(Note that the basic auth handler is not curently available through the plugin repository: you must install it manually.)*
+1. Download and install the [Basic Authentication handler plugin](https://github.com/WP-API/Basic-Auth) on your target WordPress site. _(Note that the basic auth handler is not curently available through the plugin repository: you must install it manually.)_
 2. Activate the plugin.
 3. Specify the username and password of an authorized user (a user that can edit_posts) when instantiating the WPAPI request object:
 
 ```javascript
 var wp = new WPAPI({
-    endpoint: 'http://www.website.com/wp-json',
-    username: 'someusername',
-    password: 'thepasswordforthatuser'
+  endpoint: "http://www.website.com/wp-json",
+  username: "someusername",
+  password: "thepasswordforthatuser",
 });
 ```
 
@@ -913,12 +956,14 @@ Because authentication may not always be set when needed, an `.auth()` method is
 // This will authenticate the GET to /posts/id/817
 wp.posts().id( 817 ).auth().get(...
 ```
+
 This `.auth` method can also be used to manually specify a username and a password as part of a request chain:
 
 ```javascript
 // Use username "mcurie" and password "nobel" for this request
 wp.posts().id( 817 ).auth( {username: 'mcurie', password: 'nobel'} ).get(...
 ```
+
 This will override any previously-set username or password values.
 
 **Authenticate all requests for a WPAPI instance**
@@ -960,17 +1005,16 @@ add_action( 'wp_enqueue_scripts', 'my_enqueue_scripts' );
 And then use this nonce when initializing the library:
 
 ```javascript
-var WPAPI = require( 'wpapi/superagent' );
+var WPAPI = require("wpapi/superagent");
 var wp = new WPAPI({
-    endpoint: window.WP_API_Settings.endpoint,
-    nonce: window.WP_API_Settings.nonce
+  endpoint: window.WP_API_Settings.endpoint,
+  nonce: window.WP_API_Settings.nonce,
 });
 ```
 
 ## API Documentation
 
 In addition to the above getting-started guide, we have automatically-generated [API documentation](http://wp-api.org/node-wpapi/api-reference/wpapi/1.1.2/).
-
 
 ## Issues
 
