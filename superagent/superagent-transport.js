@@ -1,14 +1,14 @@
 /**
  * @module http-transport
  */
-'use strict';
+"use strict";
 
-const agent = require( 'superagent' );
+const agent = require("superagent");
 
-const checkMethodSupport = require( '../lib/util/check-method-support' );
-const objectReduce = require( '../lib/util/object-reduce' );
-const isEmptyObject = require( '../lib/util/is-empty-object' );
-const { createPaginationObject } = require( '../lib/pagination' );
+const checkMethodSupport = require("../lib/util/check-method-support");
+const objectReduce = require("../lib/util/object-reduce");
+const isEmptyObject = require("../lib/util/is-empty-object");
+const { createPaginationObject } = require("../lib/pagination");
 
 /**
  * Set any provided headers on the outgoing request object. Runs after _auth.
@@ -19,15 +19,15 @@ const { createPaginationObject } = require( '../lib/pagination' );
  * @param {Object} options A WPRequest _options object
  * @param {Object} A superagent request object, with any available headers set
  */
-function _setHeaders( request, options ) {
+function _setHeaders(request, options) {
 	// If there's no headers, do nothing
-	if ( ! options.headers ) {
+	if (!options.headers) {
 		return request;
 	}
 
 	return objectReduce(
 		options.headers,
-		( request, value, key ) => request.set( key, value ),
+		(request, value, key) => request.set(key, value),
 		request
 	);
 }
@@ -42,15 +42,15 @@ function _setHeaders( request, options ) {
  * @param {Boolean} forceAuthentication whether to force authentication on the request
  * @param {Object} A superagent request object, conditionally configured to use basic auth
  */
-function _auth( request, options, forceAuthentication ) {
+function _auth(request, options, forceAuthentication) {
 	// If we're not supposed to authenticate, don't even start
-	if ( ! forceAuthentication && ! options.auth && ! options.nonce ) {
+	if (!forceAuthentication && !options.auth && !options.nonce) {
 		return request;
 	}
 
 	// Enable nonce in options for Cookie authentication http://wp-api.org/guides/authentication.html
-	if ( options.nonce ) {
-		request.set( 'X-WP-Nonce', options.nonce );
+	if (options.nonce) {
+		request.set("X-WP-Nonce", options.nonce);
 		return request;
 	}
 
@@ -59,12 +59,12 @@ function _auth( request, options, forceAuthentication ) {
 	const password = options.password;
 
 	// If no username or no password, can't authenticate
-	if ( ! username || ! password ) {
+	if (!username || !password) {
 		return request;
 	}
 
 	// Can authenticate: set basic auth parameters on the request
-	return request.auth( username, password );
+	return request.auth(username, password);
 }
 
 // Pagination-Related Helpers
@@ -80,14 +80,14 @@ function _auth( request, options, forceAuthentication ) {
  * @param {Object} response.body The response content as a JS object
  * @returns {Object} The response content as a JS object
  */
-function extractResponseBody( response ) {
+function extractResponseBody(response) {
 	let responseBody = response.body;
-	if ( isEmptyObject( responseBody ) && response.type === 'text/html' ) {
+	if (isEmptyObject(responseBody) && response.type === "text/html") {
 		// Response may have come back as HTML due to caching plugin; try to parse
 		// the response text into JSON
 		try {
-			responseBody = JSON.parse( response.text );
-		} catch ( e ) {
+			responseBody = JSON.parse(response.text);
+		} catch (e) {
 			// Swallow errors, it's OK to fall back to returning the body
 		}
 	}
@@ -106,31 +106,32 @@ function extractResponseBody( response ) {
  * @param {Function} transform A function to transform the result data
  * @returns {Promise} A promise to the superagent request
  */
-function invokeAndPromisify( request, transform ) {
-	return new Promise( ( resolve, reject ) => {
+function invokeAndPromisify(request, transform) {
+	return new Promise((resolve, reject) => {
 		// Fire off the result
-		request.end( ( err, result ) => {
-
+		request.end((err, result) => {
 			// Return the results as a promise
-			if ( err || result.error ) {
-				reject( err || result.error );
+			if (err || result.error) {
+				reject(err || result.error);
 			} else {
-				resolve( result );
+				resolve(result);
 			}
-		} );
-	} ).then( transform ).catch( ( err ) => {
-		// If the API provided an error object, it will be available within the
-		// superagent response object as response.body (containing the response
-		// JSON). If that object exists, it will have a .code property if it is
-		// truly an API error (non-API errors will not have a .code).
-		if ( err.response && err.response.body && err.response.body.code ) {
-			// Forward API error response JSON on to the calling method: omit
-			// all transport-specific (superagent-specific) properties
-			err = err.response.body;
-		}
-		// Re-throw the error so that it can be handled by a Promise .catch or .then
-		throw err;
-	} );
+		});
+	})
+		.then(transform)
+		.catch((err) => {
+			// If the API provided an error object, it will be available within the
+			// superagent response object as response.body (containing the response
+			// JSON). If that object exists, it will have a .code property if it is
+			// truly an API error (non-API errors will not have a .code).
+			if (err.response && err.response.body && err.response.body.code) {
+				// Forward API error response JSON on to the calling method: omit
+				// all transport-specific (superagent-specific) properties
+				err = err.response.body;
+			}
+			// Re-throw the error so that it can be handled by a Promise .catch or .then
+			throw err;
+		});
 }
 
 /**
@@ -143,10 +144,16 @@ function invokeAndPromisify( request, transform ) {
  * @returns {Object} The "body" property of the result, conditionally augmented with
  *                  pagination information if the result is a partial collection.
  */
-function returnBody( wpreq, result ) {
-	const body = extractResponseBody( result );
-	const _paging = createPaginationObject( result, wpreq._options, wpreq.transport );
-	if ( _paging ) {
+function returnBody(wpreq, result) {
+	const body = extractResponseBody(result);
+	if (wpreq._single) return body[0];
+
+	const _paging = createPaginationObject(
+		result,
+		wpreq._options,
+		wpreq.transport
+	);
+	if (_paging) {
 		body._paging = _paging;
 	}
 	return body;
@@ -159,7 +166,7 @@ function returnBody( wpreq, result ) {
  * @param {Object} result The results from the HTTP request
  * @returns {Object} The "headers" property of the result
  */
-function returnHeaders( result ) {
+function returnHeaders(result) {
 	return result.headers;
 }
 
@@ -172,14 +179,14 @@ function returnHeaders( result ) {
  * @param {WPRequest} wpreq A WPRequest query object
  * @returns {Promise} A promise to the results of the HTTP request
  */
-function _httpGet( wpreq ) {
-	checkMethodSupport( 'get', wpreq );
+function _httpGet(wpreq) {
+	checkMethodSupport("get", wpreq);
 	const url = wpreq.toString();
 
-	let request = _auth( agent.get( url ), wpreq._options );
-	request = _setHeaders( request, wpreq._options );
+	let request = _auth(agent.get(url), wpreq._options);
+	request = _setHeaders(request, wpreq._options);
 
-	return invokeAndPromisify( request, returnBody.bind( null, wpreq ) );
+	return invokeAndPromisify(request, returnBody.bind(null, wpreq));
 }
 
 /**
@@ -190,25 +197,25 @@ function _httpGet( wpreq ) {
  * @param {Object} data The data for the POST request
  * @returns {Promise} A promise to the results of the HTTP request
  */
-function _httpPost( wpreq, data ) {
-	checkMethodSupport( 'post', wpreq );
+function _httpPost(wpreq, data) {
+	checkMethodSupport("post", wpreq);
 	const url = wpreq.toString();
 	data = data || {};
-	let request = _auth( agent.post( url ), wpreq._options, true );
-	request = _setHeaders( request, wpreq._options );
+	let request = _auth(agent.post(url), wpreq._options, true);
+	request = _setHeaders(request, wpreq._options);
 
-	if ( wpreq._attachment ) {
+	if (wpreq._attachment) {
 		// Data must be form-encoded alongside image attachment
 		request = objectReduce(
 			data,
-			( req, value, key ) => req.field( key, value ),
-			request.attach( 'file', wpreq._attachment, wpreq._attachmentName )
+			(req, value, key) => req.field(key, value),
+			request.attach("file", wpreq._attachment, wpreq._attachmentName)
 		);
 	} else {
-		request = request.send( data );
+		request = request.send(data);
 	}
 
-	return invokeAndPromisify( request, returnBody.bind( null, wpreq ) );
+	return invokeAndPromisify(request, returnBody.bind(null, wpreq));
 }
 
 /**
@@ -218,15 +225,15 @@ function _httpPost( wpreq, data ) {
  * @param {Object} data The data for the PUT request
  * @returns {Promise} A promise to the results of the HTTP request
  */
-function _httpPut( wpreq, data ) {
-	checkMethodSupport( 'put', wpreq );
+function _httpPut(wpreq, data) {
+	checkMethodSupport("put", wpreq);
 	const url = wpreq.toString();
 	data = data || {};
 
-	let request = _auth( agent.put( url ), wpreq._options, true ).send( data );
-	request = _setHeaders( request, wpreq._options );
+	let request = _auth(agent.put(url), wpreq._options, true).send(data);
+	request = _setHeaders(request, wpreq._options);
 
-	return invokeAndPromisify( request, returnBody.bind( null, wpreq ) );
+	return invokeAndPromisify(request, returnBody.bind(null, wpreq));
 }
 
 /**
@@ -236,13 +243,13 @@ function _httpPut( wpreq, data ) {
  * @param {Object} [data] Data to send along with the DELETE request
  * @returns {Promise} A promise to the results of the HTTP request
  */
-function _httpDelete( wpreq, data ) {
-	checkMethodSupport( 'delete', wpreq );
+function _httpDelete(wpreq, data) {
+	checkMethodSupport("delete", wpreq);
 	const url = wpreq.toString();
-	let request = _auth( agent.del( url ), wpreq._options, true ).send( data );
-	request = _setHeaders( request, wpreq._options );
+	let request = _auth(agent.del(url), wpreq._options, true).send(data);
+	request = _setHeaders(request, wpreq._options);
 
-	return invokeAndPromisify( request, returnBody.bind( null, wpreq ) );
+	return invokeAndPromisify(request, returnBody.bind(null, wpreq));
 }
 
 /**
@@ -251,13 +258,13 @@ function _httpDelete( wpreq, data ) {
  * @param {WPRequest} wpreq A WPRequest query object
  * @returns {Promise} A promise to the header results of the HTTP request
  */
-function _httpHead( wpreq ) {
-	checkMethodSupport( 'head', wpreq );
+function _httpHead(wpreq) {
+	checkMethodSupport("head", wpreq);
 	const url = wpreq.toString();
-	let request = _auth( agent.head( url ), wpreq._options );
-	request = _setHeaders( request, wpreq._options );
+	let request = _auth(agent.head(url), wpreq._options);
+	request = _setHeaders(request, wpreq._options);
 
-	return invokeAndPromisify( request, returnHeaders );
+	return invokeAndPromisify(request, returnHeaders);
 }
 
 module.exports = {
