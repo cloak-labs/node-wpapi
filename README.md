@@ -61,20 +61,20 @@ Then, within your application's script files, `require` the module to gain acces
 To import only the query builder (without the `.get()`, `.create()`, `.delete()`, `.update()` or `.then()` chaining methods):
 
 ```javascript
-var WPAPI = require("wpapi");
+var WPAPI = require("@cloakwp/wpapi");
 ```
 
 To import the superagent bundle, which contains the full suite of HTTP interaction methods:
 
 ```js
-var WPAPI = require("wpapi/superagent");
+var WPAPI = require("@cloakwp/wpapi/superagent");
 ```
 
-This library is designed to work in the browser as well, via a build system such as Browserify or Webpack; just install the package and `require( 'wpapi' )` (or `'wpapi/superagent'`) from your application code.
+This library is designed to work in the browser as well, via a build system such as Browserify or Webpack; just install the package and `require( '@cloakwp/wpapi' )` (or `'@cloakwp/wpapi/superagent'`) from your application code.
 
 ### Download the UMD Bundle
 
-Alternatively, you may download a [ZIP archive of the bundled library code](https://wp-api.github.io/node-wpapi/wpapi.zip). These files are UMD modules, which may be included directly on a page using a regular `<script>` tag _or_ required via AMD or CommonJS module systems. In the absence of a module system, the UMD modules will export the browser global variable `WPAPI`, which can be used in place of `require( 'wpapi' )` to access the library from your code.
+Alternatively, you may download a [ZIP archive of the bundled library code](https://wp-api.github.io/node-wpapi/wpapi.zip). These files are UMD modules, which may be included directly on a page using a regular `<script>` tag _or_ required via AMD or CommonJS module systems. In the absence of a module system, the UMD modules will export the browser global variable `WPAPI`, which can be used in place of `require( '@cloakwp/wpapi' )` to access the library from your code.
 
 At present this browser bundle tracks the `wpapi/superagent` module, and includes Superagent itself.
 
@@ -93,8 +93,8 @@ npm i --save wpapi@alpha superagent
 and then changing your `require` statements to use the `wpapi/superagent` entrypoint:
 
 ```diff
---- const WPAPI = require( 'wpapi' );
-+++ const WPAPI = require( 'wpapi/superagent' );
+--- const WPAPI = require( '@cloakwp/wpapi' );
++++ const WPAPI = require( '@cloakwp/wpapi/superagent' );
 ```
 
 ### Use Promises instead of Callbacks
@@ -123,7 +123,7 @@ await wp.posts().get();
 The module is a constructor, so you can create an instance of the API client bound to the endpoint for your WordPress install:
 
 ```javascript
-var WPAPI = require("wpapi/superagent");
+var WPAPI = require("@cloakwp/wpapi/superagent");
 var wp = new WPAPI({ endpoint: "http://src.wordpress-develop.dev/wp-json" });
 ```
 
@@ -1005,7 +1005,7 @@ add_action( 'wp_enqueue_scripts', 'my_enqueue_scripts' );
 And then use this nonce when initializing the library:
 
 ```javascript
-var WPAPI = require("wpapi/superagent");
+var WPAPI = require("@cloakwp/wpapi/superagent");
 var wp = new WPAPI({
   endpoint: window.WP_API_Settings.endpoint,
   nonce: window.WP_API_Settings.nonce,

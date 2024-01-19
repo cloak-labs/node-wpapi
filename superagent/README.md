@@ -7,8 +7,10 @@ This endpoint returns a version of the WPAPI library configured to use Superagen
 Install both `wpapi` and `superagent` using the command `npm install --save wpapi superagent`.
 
 ```js
-import WPAPI from 'wpapi/superagent';
+import WPAPI from "@cloakwp/wpapi/superagent";
 
 // Configure and use WPAPI as normal
-const site = new WPAPI( { /* ... */ } );
+const site = new WPAPI({
+  /* ... */
+});
 ```

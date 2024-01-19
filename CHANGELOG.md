@@ -4,7 +4,7 @@
 
 Forked by CloakWP. Updates:
 
-- Removed reliance of `node-fetch` and `form-data` packages as these are now built-in Node APIs (as of Feb. 2022)
+- Removed `node-fetch` and `form-data` packages as these are now built-in Node APIs (as of Feb. 2022)
 - Removed all code related to documentation site (intention is to simplify the dev environment and reduce future maintenance hell); the original documentation site obviously still exists (out of our control): http://wp-api.org/node-wpapi/api-reference/wpapi/1.1.2/
 - Added `single()` method to `WPRequest`, which will ensure a single object is returned rather than an array -- useful for when you know a single post will be returned and you don't want to manually extract it from the array.
 - Added `fields()` method to `WPRequest` which is a helper for setting the `_fields` filter parameter, enabling you to fetch/return only the fields you specify; learn more here: https://developer.wordpress.org/rest-api/using-the-rest-api/global-parameters/#_fields
@@ -13,7 +13,7 @@ Forked by CloakWP. Updates:
 ## v2.0.0 [**alpha**] _Second Toughest in the Infants_
 
 - **BREAKING**: "Node-style" error-first callbacks (_e.g._ `.get( ( err, data ) => {} )`) are no longer supported. All transport request methods return Promises.
-- **BREAKING**: The module exported as `wpapi` no longer includes HTTP methods. Install `superagent` as a peer dependency and `require( 'wpapi/superagent' )` in order to make HTTP requests.
+- **BREAKING**: The module exported as `wpapi` no longer includes HTTP methods. Install `superagent` as a peer dependency and `require( '@cloakwp/wpapi/superagent' )` in order to make HTTP requests.
 - **BREAKING**: Autodiscovery now either succeeds or fails; a WPAPI instance configured with default routes will no longer be returned.
 
 ## v1.2.2 _(future release)_

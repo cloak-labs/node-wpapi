@@ -7,8 +7,10 @@ This endpoint returns a version of the WPAPI library configured to use Fetch for
 Install both `wpapi` and `isomorphic-unfetch` using the command `npm install --save wpapi isomorphic-unfetch`.
 
 ```js
-import WPAPI from 'wpapi/fetch';
+import WPAPI from "@cloakwp/wpapi/fetch";
 
 // Configure and use WPAPI as normal
-const site = new WPAPI( { /* ... */ } );
+const site = new WPAPI({
+  /* ... */
+});
 ```
