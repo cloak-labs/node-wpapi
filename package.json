@@ -38,7 +38,7 @@
     ]
   },
   "scripts": {
-    "build": "webpack && webpack --config webpack.config.minified.js",
+    "build-zzz": "webpack && webpack --config webpack.config.minified.js",
     "build:stats": "webpack && webpack --config webpack.config.minified.js --stats",
     "zip": "npm run build && grunt zip",
     "update-default-routes-json": "node build/scripts/update-default-routes-json",
@@ -87,5 +87,8 @@
     "webpack": "^4.35.0",
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
