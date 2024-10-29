@@ -12,15 +12,15 @@
  * @license MIT
  })
  */
-'use strict';
+"use strict";
 
-const objectReduce = require( './lib/util/object-reduce' );
+const objectReduce = require("./lib/util/object-reduce");
 
 // This JSON file provides enough data to create handler methods for all valid
 // API routes in WordPress 4.7
-const defaultRoutes = require( './lib/data/default-routes.json' );
-const buildRouteTree = require( './lib/route-tree' ).build;
-const generateEndpointFactories = require( './lib/endpoint-factories' ).generate;
+const defaultRoutes = require("./lib/data/default-routes.json");
+const buildRouteTree = require("./lib/route-tree").build;
+const generateEndpointFactories = require("./lib/endpoint-factories").generate;
 
 // The default endpoint factories will be lazy-loaded by parsing the default
 // route tree data if a default-mode WPAPI instance is created (i.e. one that
@@ -28,10 +28,10 @@ const generateEndpointFactories = require( './lib/endpoint-factories' ).generate
 let defaultEndpointFactories;
 
 // Constant used to detect first-party WordPress REST API routes
-const apiDefaultNamespace = 'wp/v2';
+const apiDefaultNamespace = "wp/v2";
 
 // Pull in base module constructors
-const WPRequest = require( './lib/constructors/wp-request' );
+const WPRequest = require("./lib/constructors/wp-request");
 
 /**
  * Construct a REST API client instance object to create
@@ -50,16 +50,16 @@ const WPRequest = require( './lib/constructors/wp-request' );
  *                                     methods (.get, .post, .put, .delete, .head)
  *                                     to use instead of the defaults, e.g. to use
  *                                     a different HTTP library than superagent
+ * @param {Object} [options.globalParams] An optional object of global parameters to include in all requests
  */
-function WPAPI( options ) {
-
+function WPAPI(options) {
 	// Enforce `new`
-	if ( this instanceof WPAPI === false ) {
-		return new WPAPI( options );
+	if (this instanceof WPAPI === false) {
+		return new WPAPI(options);
 	}
 
-	if ( typeof options.endpoint !== 'string' ) {
-		throw new Error( 'options hash must contain an API endpoint URL string' );
+	if (typeof options.endpoint !== "string") {
+		throw new Error("options hash must contain an API endpoint URL string");
 	}
 
 	// Dictionary to be filled by handlers for default namespaces
@@ -67,19 +67,23 @@ function WPAPI( options ) {
 
 	this._options = {
 		// Ensure trailing slash on endpoint URI
-		endpoint: options.endpoint.replace(  /\/?$/, '/' ),
+		endpoint: options.endpoint.replace(/\/?$/, "/"),
+		// Add a new property for global parameters
+		globalParams: options.globalParams || {},
 	};
 
 	// If any authentication credentials were provided, assign them now
-	if ( options && ( options.username || options.password || options.nonce ) ) {
-		this.auth( options );
+	if (options && (options.username || options.password || options.nonce)) {
+		this.auth(options);
 	}
 
-	return this
-		// Configure custom HTTP transport methods, if provided
-		.transport( options.transport )
-		// Bootstrap with a specific routes object, if provided
-		.bootstrap( options && options.routes );
+	return (
+		this
+			// Configure custom HTTP transport methods, if provided
+			.transport(options.transport)
+			// Bootstrap with a specific routes object, if provided
+			.bootstrap(options && options.routes)
+	);
 }
 
 /**
@@ -134,23 +138,23 @@ function WPAPI( options ) {
  * @param {Function} [transport.head]   The function to use for HEAD requests
  * @returns {WPAPI} The WPAPI instance, for chaining
  */
-WPAPI.prototype.transport = function( transport ) {
+WPAPI.prototype.transport = function (transport) {
 	// Local reference to avoid need to reference via `this` inside forEach
 	const _options = this._options;
 
 	// Attempt to use the default transport if no override was provided
-	if ( ! _options.transport ) {
-		_options.transport = this.constructor.transport ?
-			Object.create( this.constructor.transport ) :
-			{};
+	if (!_options.transport) {
+		_options.transport = this.constructor.transport
+			? Object.create(this.constructor.transport)
+			: {};
 	}
 
 	// Whitelist the methods that may be applied
-	[ 'get', 'head', 'post', 'put', 'delete' ].forEach( ( key ) => {
-		if ( transport && transport[ key ] ) {
-			_options.transport[ key ] = transport[ key ];
+	["get", "head", "post", "put", "delete"].forEach((key) => {
+		if (transport && transport[key]) {
+			_options.transport[key] = transport[key];
 		}
-	} );
+	});
 
 	return this;
 };
@@ -169,11 +173,11 @@ WPAPI.prototype.transport = function( transport ) {
  * @param {String} url The URL to request
  * @returns {WPRequest} A WPRequest object bound to the provided URL
  */
-WPAPI.prototype.url = function( url ) {
-	return new WPRequest( {
+WPAPI.prototype.url = function (url) {
+	return new WPRequest({
 		...this._options,
 		endpoint: url,
-	} );
+	});
 };
 
 /**
@@ -184,16 +188,16 @@ WPAPI.prototype.url = function( url ) {
  * @param {String} [relativePath] An endpoint-relative path to which to bind the request
  * @returns {WPRequest} A request object
  */
-WPAPI.prototype.root = function( relativePath ) {
-	relativePath = relativePath || '';
+WPAPI.prototype.root = function (relativePath) {
+	relativePath = relativePath || "";
 	const options = {
 		...this._options,
 	};
 	// Request should be
-	const request = new WPRequest( options );
+	const request = new WPRequest(options);
 
 	// Set the path template to the string passed in
-	request._path = { '0': relativePath };
+	request._path = { 0: relativePath };
 
 	return request;
 };
@@ -255,7 +259,7 @@ WPAPI.prototype.setHeaders = WPRequest.prototype.setHeaders;
 WPAPI.prototype.auth = WPRequest.prototype.auth;
 
 // Apply the registerRoute method to the prototype
-WPAPI.prototype.registerRoute = require( './lib/wp-register-route' );
+WPAPI.prototype.registerRoute = require("./lib/wp-register-route");
 
 /**
  * Deduce request methods from a provided API root JSON response object's
@@ -273,20 +277,20 @@ WPAPI.prototype.registerRoute = require( './lib/wp-register-route' );
  *                        the route's regex pattern
  * @returns {WPAPI} The bootstrapped WPAPI client instance (for chaining or assignment)
  */
-WPAPI.prototype.bootstrap = function( routes ) {
+WPAPI.prototype.bootstrap = function (routes) {
 	let routesByNamespace;
 	let endpointFactoriesByNamespace;
 
-	if ( ! routes ) {
+	if (!routes) {
 		// Auto-generate default endpoint factories if they are not already available
-		if ( ! defaultEndpointFactories ) {
-			routesByNamespace = buildRouteTree( defaultRoutes );
-			defaultEndpointFactories = generateEndpointFactories( routesByNamespace );
+		if (!defaultEndpointFactories) {
+			routesByNamespace = buildRouteTree(defaultRoutes);
+			defaultEndpointFactories = generateEndpointFactories(routesByNamespace);
 		}
 		endpointFactoriesByNamespace = defaultEndpointFactories;
 	} else {
-		routesByNamespace = buildRouteTree( routes );
-		endpointFactoriesByNamespace = generateEndpointFactories( routesByNamespace );
+		routesByNamespace = buildRouteTree(routes);
+		endpointFactoriesByNamespace = generateEndpointFactories(routesByNamespace);
 	}
 
 	// For each namespace for which routes were identified, store the generated
@@ -295,35 +299,38 @@ WPAPI.prototype.bootstrap = function( routes ) {
 	// client instance and passing a registered namespace string.
 	// Handlers for default (wp/v2) routes will also be assigned to the WPAPI
 	// client instance object itself, for brevity.
-	return objectReduce( endpointFactoriesByNamespace, ( wpInstance, endpointFactories, namespace ) => {
+	return objectReduce(
+		endpointFactoriesByNamespace,
+		(wpInstance, endpointFactories, namespace) => {
+			// Set (or augment) the route handler factories for this namespace.
+			wpInstance._ns[namespace] = objectReduce(
+				endpointFactories,
+				(nsHandlers, handlerFn, methodName) => {
+					nsHandlers[methodName] = handlerFn;
+					return nsHandlers;
+				},
+				wpInstance._ns[namespace] || {
+					// Create all namespace dictionaries with a direct reference to the main WPAPI
+					// instance's _options property so that things like auth propagate properly
+					_options: wpInstance._options,
+				}
+			);
 
-		// Set (or augment) the route handler factories for this namespace.
-		wpInstance._ns[ namespace ] = objectReduce(
-			endpointFactories,
-			( nsHandlers, handlerFn, methodName ) => {
-				nsHandlers[ methodName ] = handlerFn;
-				return nsHandlers;
-			},
-			wpInstance._ns[ namespace ] || {
-				// Create all namespace dictionaries with a direct reference to the main WPAPI
-				// instance's _options property so that things like auth propagate properly
-				_options: wpInstance._options,
+			// For the default namespace, e.g. "wp/v2" at the time this comment was
+			// written, ensure all methods are assigned to the root client object itself
+			// in addition to the private _ns dictionary: this is done so that these
+			// methods can be called with e.g. `wp.posts()` and not the more verbose
+			// `wp.namespace( 'wp/v2' ).posts()`.
+			if (namespace === apiDefaultNamespace) {
+				Object.keys(wpInstance._ns[namespace]).forEach((methodName) => {
+					wpInstance[methodName] = wpInstance._ns[namespace][methodName];
+				});
 			}
-		);
 
-		// For the default namespace, e.g. "wp/v2" at the time this comment was
-		// written, ensure all methods are assigned to the root client object itself
-		// in addition to the private _ns dictionary: this is done so that these
-		// methods can be called with e.g. `wp.posts()` and not the more verbose
-		// `wp.namespace( 'wp/v2' ).posts()`.
-		if ( namespace === apiDefaultNamespace ) {
-			Object.keys( wpInstance._ns[ namespace ] ).forEach( ( methodName ) => {
-				wpInstance[ methodName ] = wpInstance._ns[ namespace ][ methodName ];
-			} );
-		}
-
-		return wpInstance;
-	}, this );
+			return wpInstance;
+		},
+		this
+	);
 };
 
 /**
@@ -343,11 +350,11 @@ WPAPI.prototype.bootstrap = function( routes ) {
  * @returns {Object} An object of route endpoint handler methods for the
  * routes within the specified namespace
  */
-WPAPI.prototype.namespace = function( namespace ) {
-	if ( ! this._ns[ namespace ] ) {
-		throw new Error( 'Error: namespace ' + namespace + ' is not recognized' );
+WPAPI.prototype.namespace = function (namespace) {
+	if (!this._ns[namespace]) {
+		throw new Error("Error: namespace " + namespace + " is not recognized");
 	}
-	return this._ns[ namespace ];
+	return this._ns[namespace];
 };
 
 /**
@@ -384,11 +391,11 @@ WPAPI.prototype.namespace = function( namespace ) {
  *                          the route's regex pattern
  * @returns {WPAPI} A new WPAPI instance, bound to the provided endpoint
  */
-WPAPI.site = ( endpoint, routes ) => {
-	return new WPAPI( {
+WPAPI.site = (endpoint, routes) => {
+	return new WPAPI({
 		endpoint: endpoint,
 		routes: routes,
-	} );
+	});
 };
 
 module.exports = WPAPI;

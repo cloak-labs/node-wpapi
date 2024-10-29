@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.2
+
+- Added `globalParams` option to `wpapi` constructor to allow for including default URL query parameters across ALL requests.
+
 ## v.2.0.0
 
 Forked by CloakWP. Updates:
