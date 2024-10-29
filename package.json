@@ -1,6 +1,6 @@
 {
   "name": "@cloakwp/wpapi",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "An isomorphic JavaScript client for interacting with the WordPress REST API",
   "main": "wpapi.js",
   "repository": {
