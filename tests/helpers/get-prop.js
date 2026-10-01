@@ -19,5 +19,5 @@
  * @param {Object[]} collection An array of response objects whence to pluck
  * @returns {String[]} The values of that property from each collection member
  */
-module.exports = ( property, collection ) => collection
-	.map( item => item[ property ] );
+module.exports = (property, collection) =>
+	collection.map((item) => item[property]);

@@ -5,17 +5,13 @@
  */
 'use strict';
 
-module.exports = function( grunt ) {
-	grunt.initConfig( {
-		pkg: grunt.file.readJSON( 'package.json' ),
-	} );
+module.exports = function (grunt) {
+	grunt.initConfig({
+		pkg: grunt.file.readJSON('package.json'),
+	});
 
 	// Individual tasks are defined within build/grunt
-	grunt.loadTasks( 'build/grunt' );
+	grunt.loadTasks('build/grunt');
 
-	grunt.registerTask( 'docs', [
-		'clean',
-		'generate_readme_docs',
-		'zip',
-	] );
+	grunt.registerTask('docs', ['clean', 'generate_readme_docs', 'zip']);
 };

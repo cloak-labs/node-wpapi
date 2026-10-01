@@ -10,9 +10,7 @@
 		"includePattern": ".+\\.js(doc)?$",
 		"excludePattern": "(browser/|bin/|build/|data/|tests/|node_modules)"
 	},
-	"plugins": [
-		"plugins/markdown"
-	],
+	"plugins": ["plugins/markdown"],
 	"tags": {
 		"dictionaries": ["jsdoc"]
 	},

@@ -21,5 +21,5 @@
  * @returns {String[]} The collection of values for the rendered variants of
  * the specified response object property
  */
-module.exports = ( property, collection ) => collection
-	.map( item => item[ property ].rendered );
+module.exports = (property, collection) =>
+	collection.map((item) => item[property].rendered);

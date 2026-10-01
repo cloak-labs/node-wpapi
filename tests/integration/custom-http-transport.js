@@ -1,23 +1,23 @@
-"use strict";
+'use strict';
 
-const credentials = require("../helpers/constants").credentials;
+const credentials = require('../helpers/constants').credentials;
 
 // Variable to use as our "success token" in promise assertions
-const SUCCESS = "success";
+const SUCCESS = 'success';
 
 describe.each([
 	[
-		"@cloakwp/wpapi/superagent",
-		require("../../superagent"),
-		require("../../superagent/superagent-transport"),
+		'@cloakwp/wpapi/superagent',
+		require('../../superagent'),
+		require('../../superagent/superagent-transport'),
 	],
 	[
-		"@cloakwp/wpapi/fetch",
-		require("../../fetch"),
-		require("../../fetch/fetch-transport"),
+		'@cloakwp/wpapi/fetch',
+		require('../../fetch'),
+		require('../../fetch/fetch-transport'),
 	],
 ])(
-	"%s: custom HTTP transport methods",
+	'%s: custom HTTP transport methods',
 	(transportName, WPAPI, httpTransport) => {
 		let wp;
 		let id;
@@ -41,14 +41,14 @@ describe.each([
 				});
 			});
 
-			return WPAPI.site("http://wpapi.local/wp-json")
+			return WPAPI.site('http://wpapi.local/wp-json')
 				.posts()
 				.perPage(1)
 				.then((posts) => {
 					id = posts[0].id;
 
 					// Set up our spy here so the request to get the ID isn't counted
-					jest.spyOn(httpTransport, "get");
+					jest.spyOn(httpTransport, 'get');
 				});
 		});
 
@@ -56,9 +56,9 @@ describe.each([
 			httpTransport.get.mockRestore();
 		});
 
-		it("can be defined to e.g. use a cache when available", () => {
+		it('can be defined to e.g. use a cache when available', () => {
 			wp = new WPAPI({
-				endpoint: "http://wpapi.local/wp-json",
+				endpoint: 'http://wpapi.local/wp-json',
 				transport: {
 					get: cachingGet,
 				},
@@ -75,7 +75,7 @@ describe.each([
 					expect(httpTransport.get).toHaveBeenCalledTimes(1);
 					expect(httpTransport.get).toHaveBeenCalledWith(query1);
 					expect(result).toBe(
-						cache["http://wpapi.local/wp-json/wp/v2/posts/" + id]
+						cache['http://wpapi.local/wp-json/wp/v2/posts/' + id],
 					);
 				})
 				.then(() => {
@@ -88,7 +88,7 @@ describe.each([
 					expect(httpTransport.get).toHaveBeenLastCalledWith(query1);
 					expect(httpTransport.get.mock.calls[0][0]).not.toBe(query2);
 					expect(result).toBe(
-						cache["http://wpapi.local/wp-json/wp/v2/posts/" + id]
+						cache['http://wpapi.local/wp-json/wp/v2/posts/' + id],
 					);
 					return SUCCESS;
 				});
@@ -98,7 +98,7 @@ describe.each([
 			// return expect( prom ).resolves.toBe( SUCCESS );
 		});
 
-		it("can be defined to transform responses", () => {
+		it('can be defined to transform responses', () => {
 			const extractSlug = (results) => {
 				if (Array.isArray(results) && results.length === 1) {
 					return results[0];
@@ -107,7 +107,7 @@ describe.each([
 			};
 
 			wp = new WPAPI({
-				endpoint: "http://wpapi.local/wp-json",
+				endpoint: 'http://wpapi.local/wp-json',
 				transport: {
 					// If .slug is used, auto-unwrap the returned array
 					get(wpreq) {
@@ -123,18 +123,18 @@ describe.each([
 
 			const prom = wp
 				.posts()
-				.slug("template-more-tag")
+				.slug('template-more-tag')
 				.then((results) => {
-					expect(typeof results).toBe("object");
+					expect(typeof results).toBe('object');
 					expect(Array.isArray(results)).toBe(false);
-					expect(results.title.rendered).toBe("Template: More Tag");
+					expect(results.title.rendered).toBe('Template: More Tag');
 					return SUCCESS;
 				});
 
 			return expect(prom).resolves.toBe(SUCCESS);
 		});
 
-		it("can be defined to augment responses", () => {
+		it('can be defined to augment responses', () => {
 			class Collection {
 				constructor(arr) {
 					this.data = arr;
@@ -145,7 +145,7 @@ describe.each([
 			}
 
 			wp = new WPAPI({
-				endpoint: "http://wpapi.local/wp-json",
+				endpoint: 'http://wpapi.local/wp-json',
 				transport: {
 					// Add collection helper methods to the returned arrays
 					get(wpreq, cb) {
@@ -160,21 +160,21 @@ describe.each([
 
 			const prom = wp.posts().then((results) => {
 				expect(results).toBeInstanceOf(Collection);
-				expect(results.pluck("slug")).toEqual([
-					"markup-html-tags-and-formatting",
-					"markup-image-alignment",
-					"markup-text-alignment",
-					"title-with-special-characters",
-					"markup-title-with-markup",
-					"template-featured-image-vertical",
-					"template-featured-image-horizontal",
-					"template-more-tag",
-					"template-excerpt-defined",
-					"template-excerpt-generated",
+				expect(results.pluck('slug')).toEqual([
+					'markup-html-tags-and-formatting',
+					'markup-image-alignment',
+					'markup-text-alignment',
+					'title-with-special-characters',
+					'markup-title-with-markup',
+					'template-featured-image-vertical',
+					'template-featured-image-horizontal',
+					'template-more-tag',
+					'template-excerpt-defined',
+					'template-excerpt-generated',
 				]);
 				return SUCCESS;
 			});
 			return expect(prom).resolves.toBe(SUCCESS);
 		});
-	}
+	},
 );

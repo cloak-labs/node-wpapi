@@ -61,13 +61,13 @@ Then, within your application's script files, `require` the module to gain acces
 To import only the query builder (without the `.get()`, `.create()`, `.delete()`, `.update()` or `.then()` chaining methods):
 
 ```javascript
-var WPAPI = require("@cloakwp/wpapi");
+var WPAPI = require('@cloakwp/wpapi');
 ```
 
 To import the superagent bundle, which contains the full suite of HTTP interaction methods:
 
 ```js
-var WPAPI = require("@cloakwp/wpapi/superagent");
+var WPAPI = require('@cloakwp/wpapi/superagent');
 ```
 
 This library is designed to work in the browser as well, via a build system such as Browserify or Webpack; just install the package and `require( '@cloakwp/wpapi' )` (or `'@cloakwp/wpapi/superagent'`) from your application code.
@@ -104,15 +104,15 @@ In version 1, you could use "Node-style" error-first callback functions instead 
 ```js
 // Version 1
 wp.posts().get(function (error, posts) {
-  /* ... */
+	/* ... */
 });
 
 // Version 2, Promises syntax
 wp.posts()
-  .get()
-  .then((posts) => {
-    /* ... */
-  });
+	.get()
+	.then((posts) => {
+		/* ... */
+	});
 
 // Version 2, await syntax
 await wp.posts().get();
@@ -123,8 +123,8 @@ await wp.posts().get();
 The module is a constructor, so you can create an instance of the API client bound to the endpoint for your WordPress install:
 
 ```javascript
-var WPAPI = require("@cloakwp/wpapi/superagent");
-var wp = new WPAPI({ endpoint: "http://src.wordpress-develop.dev/wp-json" });
+var WPAPI = require('@cloakwp/wpapi/superagent');
+var wp = new WPAPI({ endpoint: 'http://src.wordpress-develop.dev/wp-json' });
 ```
 
 Once an instance is constructed, you can chain off of it to construct a specific request. (Think of it as a query-builder for WordPress!)
@@ -134,13 +134,13 @@ Once an instance is constructed, you can chain off of it to construct a specific
 ```javascript
 // Request methods return Promises.
 wp.posts()
-  .get()
-  .then(function (data) {
-    // do something with the returned posts
-  })
-  .catch(function (err) {
-    // handle error
-  });
+	.get()
+	.then(function (data) {
+		// do something with the returned posts
+	})
+	.catch(function (err) {
+		// handle error
+	});
 ```
 
 The `wp` object has endpoint handler methods for every endpoint that ships with the default WordPress REST API plugin.
@@ -152,7 +152,7 @@ Once you have used the chaining methods to describe a resource, you may call `.c
 In a case where you would want to connect to a HTTPS WordPress installation that has a self-signed certificate (insecure), you will need to force a connection by placing the following line before you make any `wp` calls.
 
 ```javascript
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 ```
 
 ### Auto-Discovery
@@ -162,7 +162,7 @@ It is also possible to leverage the [capability discovery](https://developer.wor
 To utilize the auto-discovery functionality, call `WPAPI.discover()` with a URL within a WordPress REST API-enabled site:
 
 ```js
-var apiPromise = WPAPI.discover("http://my-site.com");
+var apiPromise = WPAPI.discover('http://my-site.com');
 ```
 
 If auto-discovery succeeds this method returns a promise that will be resolved with a WPAPI client instance object configured specifically for your site. You can use that promise as the queue that your client instance is ready, then use the client normally within the `.then` callback.
@@ -171,27 +171,27 @@ If auto-discovery succeeds this method returns a promise that will be resolved w
 
 ```js
 apiPromise.then(function (site) {
-  // If default routes were detected, they are now available
-  site.posts().then(function (posts) {
-    console.log(posts);
-  }); // etc
+	// If default routes were detected, they are now available
+	site.posts().then(function (posts) {
+		console.log(posts);
+	}); // etc
 
-  // If custom routes were detected, they can be accessed via .namespace()
-  site
-    .namespace("myplugin/v1")
-    .authors()
-    .then(function (authors) {
-      /* ... */
-    });
+	// If custom routes were detected, they can be accessed via .namespace()
+	site
+		.namespace('myplugin/v1')
+		.authors()
+		.then(function (authors) {
+			/* ... */
+		});
 
-  // Namespaces can be saved out to variables:
-  var myplugin = site.namespace("myplugin/v1");
-  myplugin
-    .authors()
-    .id(7)
-    .then(function (author) {
-      /* ... */
-    });
+	// Namespaces can be saved out to variables:
+	var myplugin = site.namespace('myplugin/v1');
+	myplugin
+		.authors()
+		.id(7)
+		.then(function (author) {
+			/* ... */
+		});
 });
 ```
 
@@ -200,14 +200,14 @@ apiPromise.then(function (site) {
 While using `WPAPI.discover( url )` to generate the handler for your site gets you up and running quickly, it does not provide the same level of customization as instantiating your own `new WPAPI` object. In order to specify authentication configuration when using autodiscovery, chain a `.then` onto the initial discovery query to call the `.auth` method on the returned site object with the relevant credentials (username & password, nonce, etc):
 
 ```js
-var apiPromise = WPAPI.discover("http://my-site.com").then(function (site) {
-  return site.auth({
-    username: "admin",
-    password: "always use secure passwords",
-  });
+var apiPromise = WPAPI.discover('http://my-site.com').then(function (site) {
+	return site.auth({
+		username: 'admin',
+		password: 'always use secure passwords',
+	});
 });
 apiPromise.then(function (site) {
-  // site is now configured to use authentication
+	// site is now configured to use authentication
 });
 ```
 
@@ -262,25 +262,25 @@ To create posts, use the `.create()` method on a query to POST (the HTTP verb fo
 ```js
 // You must authenticate to be able to POST (create) a post
 var wp = new WPAPI({
-  endpoint: "http://your-site.com/wp-json",
-  // This assumes you are using basic auth, as described further below
-  username: "someusername",
-  password: "password",
+	endpoint: 'http://your-site.com/wp-json',
+	// This assumes you are using basic auth, as described further below
+	username: 'someusername',
+	password: 'password',
 });
 wp.posts()
-  .create({
-    // "title" and "content" are the only required properties
-    title: "Your Post Title",
-    content: "Your post content",
-    // Post will be created as a draft by default if a specific "status"
-    // is not specified
-    status: "publish",
-  })
-  .then(function (response) {
-    // "response" will hold all properties of your newly-created post,
-    // including the unique `id` the post was assigned on creation
-    console.log(response.id);
-  });
+	.create({
+		// "title" and "content" are the only required properties
+		title: 'Your Post Title',
+		content: 'Your post content',
+		// Post will be created as a draft by default if a specific "status"
+		// is not specified
+		status: 'publish',
+	})
+	.then(function (response) {
+		// "response" will hold all properties of your newly-created post,
+		// including the unique `id` the post was assigned on creation
+		console.log(response.id);
+	});
 ```
 
 This will work in the same manner for resources other than `post`: you can see the list of required data parameters for each resource on the [REST API Developer Handbook](https://developer.wordpress.org/rest-api/reference/).
@@ -292,23 +292,23 @@ To create posts, use the `.update()` method on a single-item query to PUT (the H
 ```js
 // You must authenticate to be able to PUT (update) a post
 var wp = new WPAPI({
-  endpoint: "http://your-site.com/wp-json",
-  // This assumes you are using basic auth, as described further below
-  username: "someusername",
-  password: "password",
+	endpoint: 'http://your-site.com/wp-json',
+	// This assumes you are using basic auth, as described further below
+	username: 'someusername',
+	password: 'password',
 });
 // .id() must be used to specify the post we are updating
 wp.posts()
-  .id(2501)
-  .update({
-    // Update the title
-    title: "A Better Title",
-    // Set the post live (assuming it was "draft" before)
-    status: "publish",
-  })
-  .then(function (response) {
-    console.log(response);
-  });
+	.id(2501)
+	.update({
+		// Update the title
+		title: 'A Better Title',
+		// Set the post live (assuming it was "draft" before)
+		status: 'publish',
+	})
+	.then(function (response) {
+		console.log(response);
+	});
 ```
 
 This will work in the same manner for resources other than `post`: you can see the list of required data parameters for each resource in the [REST API Developer Handbook](https://developer.wordpress.org/rest-api/reference/).
@@ -464,40 +464,40 @@ To find the ID of a tag or category for which the slug is known, you can query t
 
 ```js
 wp.categories()
-  .slug("fiction")
-  .then(function (cats) {
-    // .slug() queries will always return as an array
-    var fictionCat = cats[0];
-    return wp.posts().categories(fictionCat.id);
-  })
-  .then(function (postsInFiction) {
-    // These posts are all categorized "fiction":
-    console.log(postsInFiction);
-  });
+	.slug('fiction')
+	.then(function (cats) {
+		// .slug() queries will always return as an array
+		var fictionCat = cats[0];
+		return wp.posts().categories(fictionCat.id);
+	})
+	.then(function (postsInFiction) {
+		// These posts are all categorized "fiction":
+		console.log(postsInFiction);
+	});
 ```
 
 To find posts in category 'fiction' and tagged either 'magical-realism' or 'historical', this process can be extended: note that this example uses the [`RSVP.hash` utility](https://github.com/tildeio/rsvp.js/#hash-of-promises) for convenience and parallelism, but the same result could easily be accomplished with `Promise.all` or by chaining each request.
 
 ```js
 RSVP.hash({
-  categories: wp.categories().slug("fiction"),
-  tags1: wp.tags().slug("magical-realism"),
-  tags2: wp.tags().slug("historical"),
+	categories: wp.categories().slug('fiction'),
+	tags1: wp.tags().slug('magical-realism'),
+	tags2: wp.tags().slug('historical'),
 })
-  .then(function (results) {
-    // Combine & map .slug() results into arrays of IDs by taxonomy
-    var tagIDs = results.tags1.concat(results.tags2).map(function (tag) {
-      return tag.id;
-    });
-    var categoryIDs = results.categories.map(function (cat) {
-      return cat.id;
-    });
-    return wp.posts().tags(tags).categories(categories);
-  })
-  .then(function (posts) {
-    // These posts are all fiction, either magical realism or historical:
-    console.log(posts);
-  });
+	.then(function (results) {
+		// Combine & map .slug() results into arrays of IDs by taxonomy
+		var tagIDs = results.tags1.concat(results.tags2).map(function (tag) {
+			return tag.id;
+		});
+		var categoryIDs = results.categories.map(function (cat) {
+			return cat.id;
+		});
+		return wp.posts().tags(tags).categories(categories);
+	})
+	.then(function (posts) {
+		// These posts are all fiction, either magical realism or historical:
+		console.log(posts);
+	});
 ```
 
 This process may seem cumbersome, but it provides a more broadly reliable method of querying than querying by mutable slugs. The first requests may also be avoided entirely by pre-creating and storing a dictionary of term slugs and their associated IDs in your application; however, be aware that this dictionary must be updated whenever slugs change.
@@ -538,19 +538,19 @@ The `.password()` method (not to be confused with the password property of `.aut
 
 ```js
 wp.posts()
-  .id(idOfProtectedPost)
-  .then(function (result) {
-    console.log(result.content.protected); // true
-    console.log(result.content.rendered); // ""
-  });
+	.id(idOfProtectedPost)
+	.then(function (result) {
+		console.log(result.content.protected); // true
+		console.log(result.content.rendered); // ""
+	});
 
 wp.posts
-  .id(idOfProtectedPost)
-  // Provide the password string with the request
-  .password("thepasswordstring")
-  .then(function (result) {
-    console.log(result.content.rendered); // "The post content"
-  });
+	.id(idOfProtectedPost)
+	// Provide the password string with the request
+	.password('thepasswordstring')
+	.then(function (result) {
+		console.log(result.content.rendered); // "The post content"
+	});
 ```
 
 #### Other Filters
@@ -612,25 +612,25 @@ If you wish to associate a newly-uploaded media record to a specific post, you m
 
 ```js
 wp.media()
-  // Specify a path to the file you want to upload, or a Buffer
-  .file("/path/to/the/image.jpg")
-  .create({
-    title: "My awesome image",
-    alt_text: "an image of something awesome",
-    caption: "This is the caption text",
-    description: "More explanatory information",
-  })
-  .then(function (response) {
-    // Your media is now uploaded: let's associate it with a post
-    var newImageId = response.id;
-    return wp.media().id(newImageId).update({
-      post: associatedPostId,
-    });
-  })
-  .then(function (response) {
-    console.log("Media ID #" + response.id);
-    console.log("is now associated with Post ID #" + response.post);
-  });
+	// Specify a path to the file you want to upload, or a Buffer
+	.file('/path/to/the/image.jpg')
+	.create({
+		title: 'My awesome image',
+		alt_text: 'an image of something awesome',
+		caption: 'This is the caption text',
+		description: 'More explanatory information',
+	})
+	.then(function (response) {
+		// Your media is now uploaded: let's associate it with a post
+		var newImageId = response.id;
+		return wp.media().id(newImageId).update({
+			post: associatedPostId,
+		});
+	})
+	.then(function (response) {
+		console.log('Media ID #' + response.id);
+		console.log('is now associated with Post ID #' + response.post);
+	});
 ```
 
 If you are uploading media from the client side, you can pass a reference to a file input's file list entry in place of the file path:
@@ -646,8 +646,8 @@ wp.media()
 Support for Custom Post Types is provided via the `.registerRoute` method. This method returns a handler function which can be assigned to your site instance as a method, and takes the [same namespace and route string arguments as `rest_register_route`](https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/):
 
 ```js
-var site = new WPAPI({ endpoint: "http://www.yoursite.com/wp-json" });
-site.myCustomResource = site.registerRoute("myplugin/v1", "/author/(?P<id>)");
+var site = new WPAPI({ endpoint: 'http://www.yoursite.com/wp-json' });
+site.myCustomResource = site.registerRoute('myplugin/v1', '/author/(?P<id>)');
 site.myCustomResource().id(17); // => myplugin/v1/author/17
 ```
 
@@ -656,13 +656,13 @@ The string `(?P<id>)` indicates that a level of the route for this resource is a
 You might notice that in the example from the official WP-API documentation, a pattern is specified with a different format: this is a [regular expression](http://www.regular-expressions.info/tutorial.html) designed to validate the values that may be used for this capture group.
 
 ```js
-var site = new WPAPI({ endpoint: "http://www.yoursite.com/wp-json" });
+var site = new WPAPI({ endpoint: 'http://www.yoursite.com/wp-json' });
 site.myCustomResource = site.registerRoute(
-  "myplugin/v1",
-  "/author/(?P<id>\\d+)"
+	'myplugin/v1',
+	'/author/(?P<id>\\d+)',
 );
 site.myCustomResource().id(7); // => myplugin/v1/author/7
-site.myCustomResource().id("foo"); // => Error: Invalid path component: foo does not match (?P<a>\d+)
+site.myCustomResource().id('foo'); // => Error: Invalid path component: foo does not match (?P<a>\d+)
 ```
 
 Adding the regular expression pattern (as a string) enabled validation for this component. In this case, the `\\d+` will cause only _numeric_ values to be accepted.
@@ -691,8 +691,8 @@ If a named route component (_e.g._ the "id" part in `(?P<id>\\d+)`, above) is in
 
 ```js
 site.myCustomResource = site.registerRoute(
-  "myplugin/v1",
-  "/resource/(?P<some_part>\\d+)"
+	'myplugin/v1',
+	'/resource/(?P<some_part>\\d+)',
 );
 site.myCustomResource().somePart(7); // => myplugin/v1/resource/7
 ```
@@ -718,7 +718,7 @@ site.handler().post( 8 ).author( 92 ).before( dateObj )...
 If you wish to set custom parameters, for example to query by the custom taxonomy `genre`, you can use the `.param()` method as usual:
 
 ```js
-site.handler().param("genre", genreTermId);
+site.handler().param('genre', genreTermId);
 ```
 
 but you can also specify additional query parameter names and a `.param()` wrapper function will be added automatically. _e.g._ here `.genre( x )` will be created as a shortcut for `.param( 'genre', x )`:
@@ -736,12 +736,12 @@ site.books().genre([ genreId1, genreId2 ])...
 To assign completely arbitrary custom methods for use with your custom endpoints, a configuration object may be passed to the `registerRoute` method with a `mixins` property defining any functions to add:
 
 ```js
-site.handler = site.registerRoute("myplugin/v1", "collection/(?P<id>)", {
-  mixins: {
-    myParam: function (val) {
-      return this.param("my_param", val);
-    },
-  },
+site.handler = site.registerRoute('myplugin/v1', 'collection/(?P<id>)', {
+	mixins: {
+		myParam: function (val) {
+			return this.param('my_param', val);
+		},
+	},
 });
 ```
 
@@ -798,23 +798,23 @@ The existence of the `_paging.links.prev` and `_paging.links.next` properties ca
 You can use the `next` and `prev` properties to traverse an entire collection, should you so choose. For example, this snippet will recursively request the next page of posts and concatenate it with existing results, in order to build up an array of every post on your site:
 
 ```javascript
-var _ = require("lodash");
+var _ = require('lodash');
 function getAll(request) {
-  return request.then(function (response) {
-    if (!response._paging || !response._paging.next) {
-      return response;
-    }
-    // Request the next page and return both responses as one collection
-    return Promise.all([response, getAll(response._paging.next)]).then(
-      function (responses) {
-        return _.flatten(responses);
-      }
-    );
-  });
+	return request.then(function (response) {
+		if (!response._paging || !response._paging.next) {
+			return response;
+		}
+		// Request the next page and return both responses as one collection
+		return Promise.all([response, getAll(response._paging.next)]).then(
+			function (responses) {
+				return _.flatten(responses);
+			},
+		);
+	});
 }
 // Kick off the request
 getAll(wp.posts()).then(function (allPosts) {
-  /* ... */
+	/* ... */
 });
 ```
 
@@ -857,25 +857,25 @@ The default HTTP transport methods are available as `WPAPI.transport` (a propert
 
 ```js
 var site = new WPAPI({
-  endpoint: "http://my-site.com/wp-json",
-  transport: {
-    // Only override the transport for the GET method, in this example
-    // Transport methods should take a wpreq object:
-    get: function (wpreq) {
-      var result = cache[wpreq];
-      // If a cache hit is found, return it wrapped in a Promise:
-      if (result) {
-        // Return the data as a promise
-        return Promise.resolve(result);
-      }
+	endpoint: 'http://my-site.com/wp-json',
+	transport: {
+		// Only override the transport for the GET method, in this example
+		// Transport methods should take a wpreq object:
+		get: function (wpreq) {
+			var result = cache[wpreq];
+			// If a cache hit is found, return it wrapped in a Promise:
+			if (result) {
+				// Return the data as a promise
+				return Promise.resolve(result);
+			}
 
-      // Delegate to default transport if no cached data was found
-      return WPAPI.transport.get(wpreq, cb).then(function (result) {
-        cache[wpreq] = result;
-        return result;
-      });
-    },
-  },
+			// Delegate to default transport if no cached data was found
+			return WPAPI.transport.get(wpreq, cb).then(function (result) {
+				cache[wpreq] = result;
+				return result;
+			});
+		},
+	},
 });
 ```
 
@@ -883,12 +883,12 @@ You may set one or many custom HTTP transport methods on an existing WP site cli
 
 ```js
 site.transport({
-  get: function (wpreq) {
-    /* ... */
-  },
-  put: function (wpreq, data) {
-    /* ... */
-  },
+	get: function (wpreq) {
+		/* ... */
+	},
+	put: function (wpreq, data) {
+		/* ... */
+	},
 });
 ```
 
@@ -938,9 +938,9 @@ This library currently supports [basic HTTP authentication](http://en.wikipedia.
 
 ```javascript
 var wp = new WPAPI({
-  endpoint: "http://www.website.com/wp-json",
-  username: "someusername",
-  password: "thepasswordforthatuser",
+	endpoint: 'http://www.website.com/wp-json',
+	username: 'someusername',
+	password: 'thepasswordforthatuser',
 });
 ```
 
@@ -1005,10 +1005,10 @@ add_action( 'wp_enqueue_scripts', 'my_enqueue_scripts' );
 And then use this nonce when initializing the library:
 
 ```javascript
-var WPAPI = require("@cloakwp/wpapi/superagent");
+var WPAPI = require('@cloakwp/wpapi/superagent');
 var wp = new WPAPI({
-  endpoint: window.WP_API_Settings.endpoint,
-  nonce: window.WP_API_Settings.nonce,
+	endpoint: window.WP_API_Settings.endpoint,
+	nonce: window.WP_API_Settings.nonce,
 });
 ```
 

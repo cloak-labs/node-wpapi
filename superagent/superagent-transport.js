@@ -1,14 +1,14 @@
 /**
  * @module http-transport
  */
-"use strict";
+'use strict';
 
-const agent = require("superagent");
+const agent = require('superagent');
 
-const checkMethodSupport = require("../lib/util/check-method-support");
-const objectReduce = require("../lib/util/object-reduce");
-const isEmptyObject = require("../lib/util/is-empty-object");
-const { createPaginationObject } = require("../lib/pagination");
+const checkMethodSupport = require('../lib/util/check-method-support');
+const objectReduce = require('../lib/util/object-reduce');
+const isEmptyObject = require('../lib/util/is-empty-object');
+const { createPaginationObject } = require('../lib/pagination');
 
 /**
  * Set any provided headers on the outgoing request object. Runs after _auth.
@@ -28,7 +28,7 @@ function _setHeaders(request, options) {
 	return objectReduce(
 		options.headers,
 		(request, value, key) => request.set(key, value),
-		request
+		request,
 	);
 }
 
@@ -50,7 +50,7 @@ function _auth(request, options, forceAuthentication) {
 
 	// Enable nonce in options for Cookie authentication http://wp-api.org/guides/authentication.html
 	if (options.nonce) {
-		request.set("X-WP-Nonce", options.nonce);
+		request.set('X-WP-Nonce', options.nonce);
 		return request;
 	}
 
@@ -82,7 +82,7 @@ function _auth(request, options, forceAuthentication) {
  */
 function extractResponseBody(response) {
 	let responseBody = response.body;
-	if (isEmptyObject(responseBody) && response.type === "text/html") {
+	if (isEmptyObject(responseBody) && response.type === 'text/html') {
 		// Response may have come back as HTML due to caching plugin; try to parse
 		// the response text into JSON
 		try {
@@ -151,7 +151,7 @@ function returnBody(wpreq, result) {
 	const _paging = createPaginationObject(
 		result,
 		wpreq._options,
-		wpreq.transport
+		wpreq.transport,
 	);
 	if (_paging) {
 		body._paging = _paging;
@@ -180,7 +180,7 @@ function returnHeaders(result) {
  * @returns {Promise} A promise to the results of the HTTP request
  */
 function _httpGet(wpreq) {
-	checkMethodSupport("get", wpreq);
+	checkMethodSupport('get', wpreq);
 	const url = wpreq.toString();
 
 	let request = _auth(agent.get(url), wpreq._options);
@@ -198,7 +198,7 @@ function _httpGet(wpreq) {
  * @returns {Promise} A promise to the results of the HTTP request
  */
 function _httpPost(wpreq, data) {
-	checkMethodSupport("post", wpreq);
+	checkMethodSupport('post', wpreq);
 	const url = wpreq.toString();
 	data = data || {};
 	let request = _auth(agent.post(url), wpreq._options, true);
@@ -209,7 +209,7 @@ function _httpPost(wpreq, data) {
 		request = objectReduce(
 			data,
 			(req, value, key) => req.field(key, value),
-			request.attach("file", wpreq._attachment, wpreq._attachmentName)
+			request.attach('file', wpreq._attachment, wpreq._attachmentName),
 		);
 	} else {
 		request = request.send(data);
@@ -226,7 +226,7 @@ function _httpPost(wpreq, data) {
  * @returns {Promise} A promise to the results of the HTTP request
  */
 function _httpPut(wpreq, data) {
-	checkMethodSupport("put", wpreq);
+	checkMethodSupport('put', wpreq);
 	const url = wpreq.toString();
 	data = data || {};
 
@@ -244,7 +244,7 @@ function _httpPut(wpreq, data) {
  * @returns {Promise} A promise to the results of the HTTP request
  */
 function _httpDelete(wpreq, data) {
-	checkMethodSupport("delete", wpreq);
+	checkMethodSupport('delete', wpreq);
 	const url = wpreq.toString();
 	let request = _auth(agent.del(url), wpreq._options, true).send(data);
 	request = _setHeaders(request, wpreq._options);
@@ -259,7 +259,7 @@ function _httpDelete(wpreq, data) {
  * @returns {Promise} A promise to the header results of the HTTP request
  */
 function _httpHead(wpreq) {
-	checkMethodSupport("head", wpreq);
+	checkMethodSupport('head', wpreq);
 	const url = wpreq.toString();
 	let request = _auth(agent.head(url), wpreq._options);
 	request = _setHeaders(request, wpreq._options);

@@ -1,46 +1,50 @@
 'use strict';
-const fs = require( 'fs' );
-const http = require( 'http' );
+const fs = require('fs');
+const http = require('http');
 
-const expectStatusCode = ( url, code ) => new Promise( ( resolve, reject ) => {
-	const checkCode = ( actual, expected ) => {
-		if ( actual === expected ) {
-			return resolve( actual );
-		}
-		reject( 'Expected ' + expected + ' but received ' + actual + ' for ' + url );
-	};
-
-	http
-		.get( url, res => checkCode( res.statusCode, code ) )
-		.on( 'error', ( error ) => {
-			if ( error.statusCode ) {
-				return checkCode( error.statusCode, error );
+const expectStatusCode = (url, code) =>
+	new Promise((resolve, reject) => {
+		const checkCode = (actual, expected) => {
+			if (actual === expected) {
+				return resolve(actual);
 			}
-			return reject( error );
-		} );
-} );
+			reject(
+				'Expected ' + expected + ' but received ' + actual + ' for ' + url,
+			);
+		};
 
-const expectFileEqualsURL = ( filePath, url ) => new Promise( ( resolve, reject ) => {
-	http.get( url, ( res ) => {
-		const data = [];
-		res.on( 'data', chunk => data.push( chunk ) ); // Append Buffer object
+		http
+			.get(url, (res) => checkCode(res.statusCode, code))
+			.on('error', (error) => {
+				if (error.statusCode) {
+					return checkCode(error.statusCode, error);
+				}
+				return reject(error);
+			});
+	});
 
-		res.on( 'error', error => reject( error ) );
+const expectFileEqualsURL = (filePath, url) =>
+	new Promise((resolve, reject) => {
+		http.get(url, (res) => {
+			const data = [];
+			res.on('data', (chunk) => data.push(chunk)); // Append Buffer object
 
-		res.on( 'end', () => {
-			const downloadedImageBuffer = Buffer.concat( data );
-			const originalFile = fs.readFileSync( filePath );
+			res.on('error', (error) => reject(error));
 
-			const buffersEqual = downloadedImageBuffer.equals( originalFile );
-			expect( buffersEqual ).toBe( true );
+			res.on('end', () => {
+				const downloadedImageBuffer = Buffer.concat(data);
+				const originalFile = fs.readFileSync(filePath);
 
-			if ( buffersEqual ) {
-				return resolve( true );
-			}
-			reject( new Error( 'Downloaded file did not match original' ) );
-		} );
-	} );
-} );
+				const buffersEqual = downloadedImageBuffer.equals(originalFile);
+				expect(buffersEqual).toBe(true);
+
+				if (buffersEqual) {
+					return resolve(true);
+				}
+				reject(new Error('Downloaded file did not match original'));
+			});
+		});
+	});
 
 module.exports = {
 	expectStatusCode: expectStatusCode,

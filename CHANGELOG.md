@@ -134,16 +134,16 @@ The theme for v0.11 is better parameter handling. Several parameters are now sup
 The `.param( name, val )` method is always available for custom route handler instances, but the convenience of `.filter` and other overloaded setters was not available to custom routes without some sleuthing through the code for this library (#203). To remedy this situation, a `params` array can now be provided on the `registerRoute` configuration object. If a method is available for a parameter (such as `filter`), it will be used; if no method exists, a setter for that property will be created:
 
 ```js
-site.handler = site.registerRoute("myplugin/v1", "collection/(?P<id>)", {
-  params: [
-    // Listing any of the parameters with built-in handlers will
-    // assign that built-in chaining method to the route handler:
-    "filter",
-    "author",
-    // `.customparam()` will be created as well, as a shortcut
-    // for `.param( 'customparam', val )
-    "customparam",
-  ],
+site.handler = site.registerRoute('myplugin/v1', 'collection/(?P<id>)', {
+	params: [
+		// Listing any of the parameters with built-in handlers will
+		// assign that built-in chaining method to the route handler:
+		'filter',
+		'author',
+		// `.customparam()` will be created as well, as a shortcut
+		// for `.param( 'customparam', val )
+		'customparam',
+	],
 });
 ```
 
@@ -238,7 +238,7 @@ Autodiscovery is now supported via the `WP.discover` method (#181)
 If you already have the API response object you want to bootstrap with, the `.routes` property from it can now be passed in when calling `WP.site` or instantiating a `new WP` object (also #181, documented #182):
 
 ```js
-var site = WP.site("http://my-endpoint.com/wp-json", endpointJSON.routes);
+var site = WP.site('http://my-endpoint.com/wp-json', endpointJSON.routes);
 ```
 
 A script to ease the process of downloading this JSON object was added in PR #175

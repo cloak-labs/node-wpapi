@@ -18,9 +18,10 @@ In order to run the integration tests you will need to run a specifically-config
 
 ### Adding Tests
 
-Adding new code, or submitting a pull request? If it does something, it should have tests! Under the hood we use [Jest](https://jestjs.io/) to run our tests, and write our assertions using [Jest's "expect" BDD syntax](https://jestjs.io/docs/en/expect), *e.g.*:
+Adding new code, or submitting a pull request? If it does something, it should have tests! Under the hood we use [Jest](https://jestjs.io/) to run our tests, and write our assertions using [Jest's "expect" BDD syntax](https://jestjs.io/docs/en/expect), _e.g._:
+
 ```javascript
-expect( wp._options.endpoint ).toBe( 'http://some.url.com/wp-json/' );
+expect(wp._options.endpoint).toBe('http://some.url.com/wp-json/');
 ```
 
 **If you are uncomfortable or unfamiliar with writing unit tests,** that's fine! You should feel free to submit a pull request without them. We'll work with you in the PR comments to walk you through how to test the code.
@@ -33,7 +34,7 @@ See the [existing test files](https://github.com/wp-api/node-wpapi/tree/master/t
 
 ## Best Practices for Commits
 
-You should always run `npm test` before committing, to identify any syntax, style or unit test errors in your branch.  See "Testing" below for more details about setting up the environment for running the tests.
+You should always run `npm test` before committing, to identify any syntax, style or unit test errors in your branch. See "Testing" below for more details about setting up the environment for running the tests.
 
 #### Commit Granularity
 
@@ -41,7 +42,7 @@ A single commit should encompass a single, related set of changes. Work on diffe
 
 #### Commit Messages
 
-*Thanks to the [WP-API project](https://github.com/WP-API/WP-API/blob/master/CONTRIBUTING.md) for these examples*
+_Thanks to the [WP-API project](https://github.com/WP-API/WP-API/blob/master/CONTRIBUTING.md) for these examples_
 
 Commit messages should follow the standard laid out in the git manual; that is, a one-line summary, followed by longer explanatory text when necessary.
 
@@ -91,13 +92,13 @@ Preview the generated documentation site locally with `npm run jekyll`. To insta
 
 Internally, we try to use the following branch naming scheme to keep things organized:
 
-* **feature/feature-name**: New features & enhancements (optionally, "feature/feature-name-[Github Issue/PR #]")
-* **bug/bug-name-[Github Issue #]**: Bug fixes: these should always have a corresponding [GH issue](https://github.com/wp-api/node-wpapi/issues).
-* **refactor/feature-name**: Architectural changes, refactoring
-* **build/feature-name**: Features relating to the build process, Gruntfile, linting or testing process, NPM package, *etcetera*
-* **docs/feature-name**: Documentation, README, contributing guide, fleshing out inline doc blocks; anything in the repository that's authored to be human-readable
+- **feature/feature-name**: New features & enhancements (optionally, "feature/feature-name-[Github Issue/PR #]")
+- **bug/bug-name-[Github Issue #]**: Bug fixes: these should always have a corresponding [GH issue](https://github.com/wp-api/node-wpapi/issues).
+- **refactor/feature-name**: Architectural changes, refactoring
+- **build/feature-name**: Features relating to the build process, Gruntfile, linting or testing process, NPM package, _etcetera_
+- **docs/feature-name**: Documentation, README, contributing guide, fleshing out inline doc blocks; anything in the repository that's authored to be human-readable
 
-It is not essential to maintain this naming structure in your own branches; the important thing is that pull requests *not* be submitted from your master branch.
+It is not essential to maintain this naming structure in your own branches; the important thing is that pull requests _not_ be submitted from your master branch.
 
 ## Release "Props"
 

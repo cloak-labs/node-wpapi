@@ -1,10 +1,10 @@
 /**
  * @module fetch-transport
  */
-"use strict";
+'use strict';
 
-const objectReduce = require("../lib/util/object-reduce");
-const { createPaginationObject } = require("../lib/pagination");
+const objectReduce = require('../lib/util/object-reduce');
+const { createPaginationObject } = require('../lib/pagination');
 
 /**
  * Utility method to set a header value on a fetch configuration object.
@@ -42,7 +42,7 @@ function _setHeaders(config, options) {
 	return objectReduce(
 		options.headers,
 		(config, value, key) => _setHeader(config, key, value),
-		config
+		config,
 	);
 }
 
@@ -64,8 +64,8 @@ function _auth(config, options, forceAuthentication) {
 
 	// Enable nonce in options for Cookie authentication http://wp-api.org/guides/authentication.html
 	if (options.nonce) {
-		config.credentials = "same-origin";
-		return _setHeader(config, "X-WP-Nonce", options.nonce);
+		config.credentials = 'same-origin';
+		return _setHeader(config, 'X-WP-Nonce', options.nonce);
 	}
 
 	// If no username or no password, can't authenticate
@@ -76,12 +76,12 @@ function _auth(config, options, forceAuthentication) {
 	// Can authenticate: set basic auth parameters on the config
 	let authorization = `${options.username}:${options.password}`;
 	if (global.Buffer) {
-		authorization = global.Buffer.from(authorization).toString("base64");
+		authorization = global.Buffer.from(authorization).toString('base64');
 	} else if (global.btoa) {
 		authorization = global.btoa(authorization);
 	}
 
-	return _setHeader(config, "Authorization", `Basic ${authorization}`);
+	return _setHeader(config, 'Authorization', `Basic ${authorization}`);
 }
 
 // HTTP-Related Helpers
@@ -123,7 +123,7 @@ const parseFetchResponse = (response, wpreq) => {
 			() => {
 				// JSON serialization failed; throw the underlying response.
 				throw response;
-			}
+			},
 		);
 	}
 
@@ -139,7 +139,7 @@ const parseFetchResponse = (response, wpreq) => {
 		const _paging = createPaginationObject(
 			mockResponse,
 			wpreq._options,
-			wpreq.transport
+			wpreq.transport,
 		);
 		if (_paging) {
 			body._paging = _paging;
@@ -173,7 +173,7 @@ function appendFormValue(form, key, value) {
 		return;
 	}
 
-	if (typeof value === "object") {
+	if (typeof value === 'object') {
 		Object.keys(value).forEach((childKey) => {
 			appendFormValue(form, `${key}[${childKey}]`, value[childKey]);
 		});
@@ -186,22 +186,22 @@ function appendFormValue(form, key, value) {
 function isBlobLike(value) {
 	return (
 		value &&
-		typeof value === "object" &&
-		typeof value.arrayBuffer === "function" &&
-		typeof value.size === "number"
+		typeof value === 'object' &&
+		typeof value.arrayBuffer === 'function' &&
+		typeof value.size === 'number'
 	);
 }
 
 function isBufferLike(value) {
-	if (typeof Buffer !== "undefined" && Buffer.isBuffer(value)) {
+	if (typeof Buffer !== 'undefined' && Buffer.isBuffer(value)) {
 		return true;
 	}
-	return typeof Uint8Array !== "undefined" && value instanceof Uint8Array;
+	return typeof Uint8Array !== 'undefined' && value instanceof Uint8Array;
 }
 
 function fileNameFromPath(filePath) {
 	const parts = String(filePath).split(/[/\\]/);
-	return parts[parts.length - 1] || "file";
+	return parts[parts.length - 1] || 'file';
 }
 
 function readFileFromPath(filePath) {
@@ -210,16 +210,16 @@ function readFileFromPath(filePath) {
 		// Only used for filesystem-path uploads. Blob/File/Buffer callers
 		// (Next.js, browsers) never enter this function, so webpack does not
 		// need to provide `fs` on those paths.
-		fs = require("fs");
+		fs = require('fs');
 	} catch (err) {
 		fs = null;
 	}
 
-	if (!fs || !fs.promises || typeof fs.promises.readFile !== "function") {
+	if (!fs || !fs.promises || typeof fs.promises.readFile !== 'function') {
 		return Promise.reject(
 			new Error(
-				"Attaching files by path only works when the request is invoked in a Node.js environment."
-			)
+				'Attaching files by path only works when the request is invoked in a Node.js environment.',
+			),
 		);
 	}
 
@@ -228,14 +228,14 @@ function readFileFromPath(filePath) {
 
 function nodeBufferApi() {
 	try {
-		return require("buffer");
+		return require('buffer');
 	} catch (err) {
 		return null;
 	}
 }
 
 function getFileCtor() {
-	if (typeof File === "function") {
+	if (typeof File === 'function') {
 		return File;
 	}
 	const bufferApi = nodeBufferApi();
@@ -243,7 +243,7 @@ function getFileCtor() {
 }
 
 function getBlobCtor() {
-	if (typeof Blob === "function") {
+	if (typeof Blob === 'function') {
 		return Blob;
 	}
 	const bufferApi = nodeBufferApi();
@@ -252,7 +252,7 @@ function getBlobCtor() {
 
 function wrapBytes(bytes, filename) {
 	const FileCtor = getFileCtor();
-	if (typeof FileCtor === "function") {
+	if (typeof FileCtor === 'function') {
 		return {
 			blob: new FileCtor([bytes], filename),
 			filename,
@@ -260,7 +260,7 @@ function wrapBytes(bytes, filename) {
 	}
 
 	const BlobCtor = getBlobCtor();
-	if (typeof BlobCtor === "function") {
+	if (typeof BlobCtor === 'function') {
 		return {
 			blob: new BlobCtor([bytes]),
 			filename,
@@ -268,7 +268,7 @@ function wrapBytes(bytes, filename) {
 	}
 
 	throw new Error(
-		"Blob/File is not available in this environment; cannot attach a file to the request."
+		'Blob/File is not available in this environment; cannot attach a file to the request.',
 	);
 }
 
@@ -280,7 +280,7 @@ function wrapBytes(bytes, filename) {
  * @returns {Promise<{ blob: Blob, filename: string }>}
  */
 async function toFormDataBlob(file, filename) {
-	if (typeof file === "string") {
+	if (typeof file === 'string') {
 		const bytes = await readFileFromPath(file);
 		return wrapBytes(bytes, filename || fileNameFromPath(file));
 	}
@@ -288,41 +288,39 @@ async function toFormDataBlob(file, filename) {
 	if (isBlobLike(file)) {
 		return {
 			blob: file,
-			filename: filename || file.name || "file",
+			filename: filename || file.name || 'file',
 		};
 	}
 
 	if (isBufferLike(file)) {
 		if (!filename) {
 			throw new Error(
-				".file(): File name is a required argument when uploading a Buffer"
+				'.file(): File name is a required argument when uploading a Buffer',
 			);
 		}
 		return wrapBytes(file, filename);
 	}
 
-	throw new Error(
-		".file() requires a filesystem path, Buffer, Blob, or File."
-	);
+	throw new Error('.file() requires a filesystem path, Buffer, Blob, or File.');
 }
 
 function getFormDataCtor() {
-	if (typeof FormData === "function") {
+	if (typeof FormData === 'function') {
 		return FormData;
 	}
 	throw new Error(
-		"FormData is not available in this environment; cannot attach a file to the request."
+		'FormData is not available in this environment; cannot attach a file to the request.',
 	);
 }
 
 async function buildAttachmentForm(wpreq, data) {
 	const { blob, filename } = await toFormDataBlob(
 		wpreq._attachment,
-		wpreq._attachmentName
+		wpreq._attachmentName,
 	);
 	const FormDataCtor = getFormDataCtor();
 	const form = new FormDataCtor();
-	form.append("file", blob, filename);
+	form.append('file', blob, filename);
 	Object.keys(data).forEach((key) => appendFormValue(form, key, data[key]));
 	return form;
 }
@@ -333,7 +331,7 @@ async function buildAttachmentForm(wpreq, data) {
 const send = (wpreq, config) =>
 	fetch(
 		wpreq.toString(),
-		_setHeaders(_auth(config, wpreq._options), wpreq._options)
+		_setHeaders(_auth(config, wpreq._options), wpreq._options),
 	).then((response) => {
 		// return response.headers.get( 'Link' );
 		return parseFetchResponse(response, wpreq);
@@ -347,7 +345,7 @@ const send = (wpreq, config) =>
  */
 function _httpGet(wpreq) {
 	return send(wpreq, {
-		method: "GET",
+		method: 'GET',
 	});
 }
 
@@ -363,18 +361,18 @@ async function _httpPost(wpreq, data = {}) {
 	if (wpreq._attachment) {
 		const form = await buildAttachmentForm(wpreq, data);
 		return send(wpreq, {
-			method: "POST",
-			redirect: "follow",
+			method: 'POST',
+			redirect: 'follow',
 			body: form,
 		});
 	}
 
 	return send(wpreq, {
-		method: "POST",
+		method: 'POST',
 		headers: {
-			"Content-Type": "application/json",
+			'Content-Type': 'application/json',
 		},
-		redirect: "follow",
+		redirect: 'follow',
 		body: JSON.stringify(data),
 	});
 }
@@ -388,11 +386,11 @@ async function _httpPost(wpreq, data = {}) {
  */
 function _httpPut(wpreq, data = {}) {
 	return send(wpreq, {
-		method: "PUT",
+		method: 'PUT',
 		headers: {
-			"Content-Type": "application/json",
+			'Content-Type': 'application/json',
 		},
-		redirect: "follow",
+		redirect: 'follow',
 		body: JSON.stringify(data),
 	});
 }
@@ -406,11 +404,11 @@ function _httpPut(wpreq, data = {}) {
  */
 function _httpDelete(wpreq, data) {
 	const config = {
-		method: "DELETE",
+		method: 'DELETE',
 		headers: {
-			"Content-Type": "application/json",
+			'Content-Type': 'application/json',
 		},
-		redirect: "follow",
+		redirect: 'follow',
 	};
 
 	if (data) {
@@ -431,12 +429,12 @@ function _httpHead(wpreq) {
 	const config = _setHeaders(
 		_auth(
 			{
-				method: "HEAD",
+				method: 'HEAD',
 			},
 			wpreq._options,
-			true
+			true,
 		),
-		wpreq._options
+		wpreq._options,
 	);
 
 	return fetch(url, config).then((response) => getHeaders(response));

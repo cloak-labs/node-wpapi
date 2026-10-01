@@ -12,15 +12,15 @@
  * @license MIT
  })
  */
-"use strict";
+'use strict';
 
-const objectReduce = require("./lib/util/object-reduce");
+const objectReduce = require('./lib/util/object-reduce');
 
 // This JSON file provides enough data to create handler methods for all valid
 // API routes in WordPress 4.7
-const defaultRoutes = require("./lib/data/default-routes.json");
-const buildRouteTree = require("./lib/route-tree").build;
-const generateEndpointFactories = require("./lib/endpoint-factories").generate;
+const defaultRoutes = require('./lib/data/default-routes.json');
+const buildRouteTree = require('./lib/route-tree').build;
+const generateEndpointFactories = require('./lib/endpoint-factories').generate;
 
 // The default endpoint factories will be lazy-loaded by parsing the default
 // route tree data if a default-mode WPAPI instance is created (i.e. one that
@@ -28,10 +28,10 @@ const generateEndpointFactories = require("./lib/endpoint-factories").generate;
 let defaultEndpointFactories;
 
 // Constant used to detect first-party WordPress REST API routes
-const apiDefaultNamespace = "wp/v2";
+const apiDefaultNamespace = 'wp/v2';
 
 // Pull in base module constructors
-const WPRequest = require("./lib/constructors/wp-request");
+const WPRequest = require('./lib/constructors/wp-request');
 
 /**
  * Construct a REST API client instance object to create
@@ -58,8 +58,8 @@ function WPAPI(options) {
 		return new WPAPI(options);
 	}
 
-	if (typeof options.endpoint !== "string") {
-		throw new Error("options hash must contain an API endpoint URL string");
+	if (typeof options.endpoint !== 'string') {
+		throw new Error('options hash must contain an API endpoint URL string');
 	}
 
 	// Dictionary to be filled by handlers for default namespaces
@@ -67,7 +67,7 @@ function WPAPI(options) {
 
 	this._options = {
 		// Ensure trailing slash on endpoint URI
-		endpoint: options.endpoint.replace(/\/?$/, "/"),
+		endpoint: options.endpoint.replace(/\/?$/, '/'),
 		// Add a new property for global parameters
 		globalParams: options.globalParams || {},
 	};
@@ -150,7 +150,7 @@ WPAPI.prototype.transport = function (transport) {
 	}
 
 	// Whitelist the methods that may be applied
-	["get", "head", "post", "put", "delete"].forEach((key) => {
+	['get', 'head', 'post', 'put', 'delete'].forEach((key) => {
 		if (transport && transport[key]) {
 			_options.transport[key] = transport[key];
 		}
@@ -189,7 +189,7 @@ WPAPI.prototype.url = function (url) {
  * @returns {WPRequest} A request object
  */
 WPAPI.prototype.root = function (relativePath) {
-	relativePath = relativePath || "";
+	relativePath = relativePath || '';
 	const options = {
 		...this._options,
 	};
@@ -259,7 +259,7 @@ WPAPI.prototype.setHeaders = WPRequest.prototype.setHeaders;
 WPAPI.prototype.auth = WPRequest.prototype.auth;
 
 // Apply the registerRoute method to the prototype
-WPAPI.prototype.registerRoute = require("./lib/wp-register-route");
+WPAPI.prototype.registerRoute = require('./lib/wp-register-route');
 
 /**
  * Deduce request methods from a provided API root JSON response object's
@@ -313,7 +313,7 @@ WPAPI.prototype.bootstrap = function (routes) {
 					// Create all namespace dictionaries with a direct reference to the main WPAPI
 					// instance's _options property so that things like auth propagate properly
 					_options: wpInstance._options,
-				}
+				},
 			);
 
 			// For the default namespace, e.g. "wp/v2" at the time this comment was
@@ -329,7 +329,7 @@ WPAPI.prototype.bootstrap = function (routes) {
 
 			return wpInstance;
 		},
-		this
+		this,
 	);
 };
 
@@ -352,7 +352,7 @@ WPAPI.prototype.bootstrap = function (routes) {
  */
 WPAPI.prototype.namespace = function (namespace) {
 	if (!this._ns[namespace]) {
-		throw new Error("Error: namespace " + namespace + " is not recognized");
+		throw new Error('Error: namespace ' + namespace + ' is not recognized');
 	}
 	return this._ns[namespace];
 };

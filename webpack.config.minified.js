@@ -1,8 +1,8 @@
 'use strict';
 
-const { BundleAnalyzerPlugin } = require( 'webpack-bundle-analyzer' );
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
-const config = require( './webpack.config' );
+const config = require('./webpack.config');
 
 // Re-use normal Webpack build config, just adding minification
 module.exports = {
@@ -21,12 +21,10 @@ module.exports = {
 		noEmitOnErrors: true,
 	},
 
-	plugins: [
-		...( config.plugins || [] ),
-	],
+	plugins: [...(config.plugins || [])],
 };
 
 // Conditionally opt-in to stats reporting UI.
-if ( process.argv.includes( '--stats' ) ) {
-	module.exports.plugins.push( new BundleAnalyzerPlugin() );
+if (process.argv.includes('--stats')) {
+	module.exports.plugins.push(new BundleAnalyzerPlugin());
 }
