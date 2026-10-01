@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix fetch-transport media uploads: `.file()` no longer throws `fs is not defined`. Native `FormData` now receives a Blob/File (filesystem paths are read in Node; Blob, File, and Buffer work in Next.js and browsers). Nested `create()` fields are flattened as multipart keys.
+
 ## v2.0.2
 
 - Added `globalParams` option to `wpapi` constructor to allow for including default URL query parameters across ALL requests.
